@@ -28,7 +28,11 @@ SOURCES += \
         main.cpp
 
 HEADERS += \
-    implementation.h
+    main_window.h \
+    algorithm_visualizer.h \
+    ui_panel.h \
+    algorithm_visualizer_base.h \
+    algorithm_visualizer_dummy.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
