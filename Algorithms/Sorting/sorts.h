@@ -39,7 +39,7 @@ struct InsertionSort: public SortingAlgorithm<ITERATOR, COMPARATOR>{
         for(auto iterator = std::next(first);iterator!=last;++iterator){
             const auto insertionIterator = std::upper_bound(first,iterator,*iterator,comparator);
             std::rotate(insertionIterator,iterator,std::next(iterator));
-            this->wait();
+            SortingAlgorithm<ITERATOR, COMPARATOR>::wait();
         }
     }
     virtual ~InsertionSort(){}

@@ -38,6 +38,7 @@ protected:
                 painter.drawRect(x,y,meanWidth,height);
             }
         }
+        stopper.stopped = false;
     }
     void initUIPanel(){
         uiPanel.addLineOfWidgets({&randomButton, &randomLabel, &randomLineEdit});
@@ -55,6 +56,10 @@ protected slots:
         elementsToSort.resize(elementsToGenerate);
         std::iota (std::begin(elementsToSort), std::end(elementsToSort), 1);
         random_shuffle(elementsToSort.begin(), elementsToSort.end());
+        insertionSort.setStopper(&stopper);
+        std::thread ([this]{insertionSort.sort(elementsToSort.begin(), elementsToSort.end());}).detach();
+//        auto t = new std::thread ([this]{insertionSort.sort(elementsToSort.begin(), elementsToSort.end());});
+//        t->detach();
     }
 
 protected:
@@ -65,6 +70,8 @@ protected:
     QIntValidator randomInputValidator{1, 99};
     std::vector<int> elementsToSort;
     int margin = 50;
+    Stopper stopper;
+    InsertionSort<typename std::vector<int>::iterator> insertionSort;
 
 };
 
