@@ -26,9 +26,7 @@ struct MyCustomElement: public QuadTreeElement<int>{
 
     typedef int T;
     typedef QuadTreeElement<int>::ELEMENT_PTR ELEMENT_PTR;
-    typedef  std::conditional<  is_shared_ptr<ELEMENT_PTR>::value,
-                                shared_ptr<MyCustomElement>,
-                                MyCustomElement*>::type Type;
+    typedef MyCustomElement* Type;
 
     MyCustomElement(){
         init();
@@ -44,13 +42,7 @@ struct MyCustomElement: public QuadTreeElement<int>{
         direction = (QVector2D(1,0).toVector4D()*rotationMat).toVector2D();
         speed = 1+rand()%3;
     }
-    template <class V=ELEMENT_PTR, typename std::enable_if<is_shared_ptr<V>::value>::type* = nullptr>
-    static shared_ptr<MyCustomElement> makeElement(const AABB<int> &aabb, QColor color=Qt::yellow)
-    {
-      return std::make_shared<MyCustomElement>(MyCustomElement(aabb,color));
-    }
 
-    template <class V=ELEMENT_PTR, typename std::enable_if<std::is_pointer<V>::value>::type* = nullptr>
     static MyCustomElement* makeElement(const AABB<int> &aabb, QColor color=Qt::yellow)
     {
       return new MyCustomElement(aabb,color);

@@ -64,19 +64,13 @@ struct AABB{
     }
 };
 
-template<typename T> struct is_shared_ptr : std::false_type {};
-template<typename T> struct is_shared_ptr<std::shared_ptr<T>> : std::true_type {};
 //Inherit this class for object to be used with quad tree
 template <class T>
 struct QuadTreeElement{
 
     //bool determines if shared or normal pointers will be used to keep data
-    typedef typename std::conditional   <true,
-                                        shared_ptr<QuadTreeElement<T>>,
-                                        QuadTreeElement<T>*>::type ELEMENT_PTR;
-    typedef typename std::conditional<  is_shared_ptr<ELEMENT_PTR>::value,
-                                        shared_ptr<QuadTreeElement<T>>,
-                                        QuadTreeElement<T>*>::type Type;
+    typedef QuadTreeElement<T>* ELEMENT_PTR;
+    typedef QuadTreeElement<T>* Type;
 
     QuadTreeElement(){countDefaultConstructor++;}
     QuadTreeElement(const AABB<T> &aabb):aabb(aabb){countConstructor++;}
@@ -95,26 +89,11 @@ struct QuadTreeElement{
     virtual bool doesOverlap(const  QuadTreeElement<T> &another)const{
         return aabb.doesOverlap(another.aabb);
     }
-
-    template <class V=ELEMENT_PTR, typename std::enable_if<is_shared_ptr<V>::value>::type* = nullptr>
-    static ELEMENT_PTR makeElement(const AABB<T> &aabb)
-    {
-      return std::make_shared<QuadTreeElement<T>>(QuadTreeElement(aabb));
-    }
-
-    template <class V=ELEMENT_PTR, typename std::enable_if<std::is_pointer<V>::value>::type* = nullptr>
     static ELEMENT_PTR makeElement(const AABB<T> &aabb)
     {
       return new QuadTreeElement<T>(aabb);
     }
-
-    template <class U,class V=ELEMENT_PTR, typename std::enable_if<is_shared_ptr<V>::value>::type* = nullptr>
-    static std::shared_ptr<U> dynamicCast(ELEMENT_PTR element)
-    {
-      return std::dynamic_pointer_cast<U>(element);
-    }
-
-    template <class U,class V=ELEMENT_PTR, typename std::enable_if<std::is_pointer<V>::value>::type* = nullptr>
+    template <class U>
     static U* dynamicCast(ELEMENT_PTR element)
     {
       return dynamic_cast<U*>(element);
