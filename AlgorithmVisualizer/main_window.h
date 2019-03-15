@@ -12,12 +12,14 @@ class MainWindow : public QWidget
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr){
+    MainWindow(){
         init();
         initAlgorithmVisulizer();
-        initUIPanel();
-        initConnects();
-        setLayout(&mainLayout);
+    }
+    MainWindow(AlgorithmVisualizer* algorithmVisualizer){
+        init();
+        addAlgorithmVisualizer(algorithmVisualizer);
+        setCurrAlgorithmVisualiser(algorithmVisualizer);
     }
     ~MainWindow(){}
     void addAlgorithmVisualizer(AlgorithmVisualizer* algorithmVisualizer){
@@ -27,7 +29,10 @@ public:
 protected:
     void init(){
         mainLayout.setSpacing(0);
-        mainLayout.setMargin(0);
+        mainLayout.setMargin(0);        
+        initUIPanel();
+        initConnects();
+        setLayout(&mainLayout);
     }
     void initAlgorithmVisulizer(){
         defaultAlgorithmVisualizer = std::unique_ptr<AlgorithmVisualizer>(new AlgorithmVisualizerDummy());

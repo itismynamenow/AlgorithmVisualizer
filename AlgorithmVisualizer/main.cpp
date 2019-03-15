@@ -48,11 +48,12 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    MainWindow w;
-    AlgorithmVisualizerDummy anotherDummy;
-    AlgorithmVisualizerQuadTree quadTreeAV;
-    w.addAlgorithmVisualizer(&anotherDummy);
-    w.addAlgorithmVisualizer(&quadTreeAV);
+
+    AlgorithmVisualizerQuadTree algorithmVisualizerQuadTree;
+    AlgorithmVisualizerDummy algorithmVisualizerDummy;
+
+    MainWindow w{&algorithmVisualizerQuadTree};
+    w.addAlgorithmVisualizer(&algorithmVisualizerDummy);
     w.show();
 
     return a.exec();

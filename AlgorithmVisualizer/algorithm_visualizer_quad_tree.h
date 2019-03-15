@@ -1,15 +1,18 @@
 #ifndef QUAD_TREE_ALGORITHM_VISUALIZER_H
 #define QUAD_TREE_ALGORITHM_VISUALIZER_H
+#include "ui_panel.h"
 #include "algorithm_visualizer_base.h"
 #include "../Algorithms/QuadTree/QuadTree/quad_tree_widget.h"
 
 class AlgorithmVisualizerQuadTree: public AlgorithmVisualizerBase{
 
-//    Q_OBJECT
+    Q_OBJECT
 
  public:
     AlgorithmVisualizerQuadTree(){
         name = "Quad tree";
+        initUIPanel();
+        initLayout();
     }
     virtual QString getName() override{
         return name;
@@ -98,10 +101,36 @@ protected:
         }
         return  elements;
     }
+    void initUIPanel(){
+        uiPanel.addLineOfWidgets({&randomButton, &randomLabel, &randomLineEdit});
+        connect(&randomButton, SIGNAL(clicked()), this, SLOT(setRandomData()));
+        randomLineEdit.setValidator(&randomInputValidator);
+    }
+    void initLayout(){
+        mainLayout.addWidget(&uiPanel,0,0,1,1, Qt::AlignLeft | Qt::AlignTop);
+        setLayout(&mainLayout);
+    }
+
+protected slots:
+    virtual void setRandomData(){
+        vector<QPoint> points;
+        for(int i=0;i<randomLineEdit.text().toInt();i++){
+            QPoint point(rand()%800,rand()%800);
+            points.push_back(point);
+        }
+        setPoints(points);
+    }
+
+protected:
 
     MyCustomElementsHolder holder;
     int quadSide = 5;
     vector<QPoint> points;
+    UIPanel uiPanel;
+    QPushButton randomButton{"Random"};
+    QLabel randomLabel{"in range from 1 to "};
+    QLineEdit randomLineEdit{"55"};
+    QIntValidator randomInputValidator{1, 9999};
 };
 
 #endif // QUAD_TREE_ALGORITHM_VISUALIZER_H

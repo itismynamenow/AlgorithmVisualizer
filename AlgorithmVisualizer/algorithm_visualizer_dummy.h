@@ -16,7 +16,6 @@ public:
         name = "Placeholder";
         initUIPanel();
         initLayout();
-        this->setMinimumSize(800, 800);
         connect(this->timer,SIGNAL(timeout()),this,SLOT(update()));
     }
     void paintEvent(QPaintEvent *e) override{
@@ -40,7 +39,6 @@ protected:
     }
 protected:
     UIPanel uiPanel;
-    QGridLayout mainLayout;
     QPushButton someButton{"Some button"};
     QPushButton someButton1{"Some button1"};
     QLineEdit someLineEdit{"Some line edit"};

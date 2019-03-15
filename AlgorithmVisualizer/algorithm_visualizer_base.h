@@ -11,7 +11,8 @@ class AlgorithmVisualizerBase: public AlgorithmVisualizer
 public:
     AlgorithmVisualizerBase(){
         timer = new QTimer(this);
-        timer->start(updateTimeMs);
+        timer->start(updateTimeMs);        
+        this->setMinimumSize(800, 800);
         connect(timer,SIGNAL(timeout()),this,SLOT(update()));
     }
     virtual QString getName() override{
@@ -35,6 +36,7 @@ protected:
     QString name{"Default Name"};
     //Update timer
     QTimer* timer;
-    int updateTimeMs = 30;
+    int updateTimeMs = 30;    
+    QGridLayout mainLayout;
 };
 #endif // ALGORITHM_VISUALIZER_BASE_H
