@@ -11,6 +11,7 @@ class AlgorithmVisualizerSorting: public AlgorithmVisualizerBase{
 public:
     AlgorithmVisualizerSorting(){
         name = "Sorting";
+        initSorts();
         initUIPanel();
         initLayout();
     }
@@ -41,13 +42,25 @@ protected:
         stopper.stopped = false;
     }
     void initUIPanel(){
-        uiPanel.addLineOfWidgets({&randomButton, &randomLabel, &randomLineEdit});
+        uiPanel.addLineOfWidgets({&randomButton, &randomLabel, &randomLineEdit, &dropdown});
         connect(&randomButton, SIGNAL(clicked()), this, SLOT(setRandomData()));
+        dropdown.addItem("Insertion sort");
+        dropdown.addItem("Selection sort");
+        dropdown.addItem("Bubble sort");
+        dropdown.addItem("Merge sort");
+        dropdown.addItem("Quick sort");
         randomLineEdit.setValidator(&randomInputValidator);
     }
     void initLayout(){
         mainLayout.addWidget(&uiPanel,0,0,1,1, Qt::AlignLeft | Qt::AlignTop);
         setLayout(&mainLayout);
+    }
+    void initSorts(){
+        sorts.at(0) = &insertionSort;
+        sorts.at(1) = &selectionSort;
+        sorts.at(2) = &bubbleSort;
+        sorts.at(3) = &mergeSort;
+        sorts.at(4) = &quickSort;
     }
 
 protected slots:
@@ -56,8 +69,8 @@ protected slots:
         elementsToSort.resize(elementsToGenerate);
         std::iota (std::begin(elementsToSort), std::end(elementsToSort), 1);
         random_shuffle(elementsToSort.begin(), elementsToSort.end());
-        insertionSort.setStopper(&stopper);
-        std::thread ([this]{insertionSort.sort(elementsToSort.begin(), elementsToSort.end());}).detach();
+        sorts.at(dropdown.currentIndex())->setStopper(&stopper);
+        std::thread ([this]{(*sorts.at(dropdown.currentIndex())).sort(elementsToSort.begin(), elementsToSort.end());}).detach();
 //        auto t = new std::thread ([this]{insertionSort.sort(elementsToSort.begin(), elementsToSort.end());});
 //        t->detach();
     }
@@ -67,11 +80,17 @@ protected:
     QPushButton randomButton{"Random"};
     QLabel randomLabel{"in range from 1 to "};
     QLineEdit randomLineEdit{"55"};
+    QComboBox dropdown;
     QIntValidator randomInputValidator{1, 99};
     std::vector<int> elementsToSort;
     int margin = 50;
     Stopper stopper;
     InsertionSort<typename std::vector<int>::iterator> insertionSort;
+    SelectionSort<typename std::vector<int>::iterator> selectionSort;
+    BubbleSort<typename std::vector<int>::iterator> bubbleSort;
+    MergeSort<typename std::vector<int>::iterator> mergeSort;
+    QuickSort<typename std::vector<int>::iterator> quickSort;
+    std::array<SortingAlgorithm<typename std::vector<int>::iterator>*,5> sorts;
 
 };
 

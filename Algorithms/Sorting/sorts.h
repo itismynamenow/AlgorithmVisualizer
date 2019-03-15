@@ -52,7 +52,7 @@ struct SelectionSort: public SortingAlgorithm<ITERATOR, COMPARATOR>{
         for(auto iterator = first;iterator!=last;++iterator){
             const auto minValueIterator = std::min_element(iterator,last,comparator);
             std::swap(*iterator,*minValueIterator);
-            this->wait();
+            SortingAlgorithm<ITERATOR, COMPARATOR>::wait();
         }
     }
     virtual ~SelectionSort(){}
@@ -70,7 +70,7 @@ struct BubbleSort: public SortingAlgorithm<ITERATOR, COMPARATOR>{
                 if(!comparator(*iterator,*std::next(iterator))){
                     std::swap(*iterator,*std::next(iterator));
                     isSorted = false;
-                    this->wait();
+                    SortingAlgorithm<ITERATOR, COMPARATOR>::wait();
                 }
             }
         }while(--end,!isSorted);
@@ -84,12 +84,33 @@ struct MergeSort: public SortingAlgorithm<ITERATOR, COMPARATOR>{
         if(first == last || std::next(first) == last) return;
         const auto length = std::distance(first,last);
         const auto middle = std::next(first,length/2);
-        mergeSort(first,middle,comparator);
-        mergeSort(middle,last,comparator);
+        sort(first,middle,comparator);
+        sort(middle,last,comparator);
         std::inplace_merge(first, middle, last,comparator);
-        this->wait();
+        SortingAlgorithm<ITERATOR, COMPARATOR>::wait();
     }
     virtual ~MergeSort(){}
 };
 
+template<class ITERATOR, class COMPARATOR = std::less<typename std::iterator_traits<ITERATOR>::value_type>>
+struct QuickSort: public SortingAlgorithm<ITERATOR, COMPARATOR>{
+    virtual void sort(const ITERATOR first, const ITERATOR last, const COMPARATOR comparator = COMPARATOR ()) override{        if(first == last || std::next(first) == last) return;
+        const auto length = std::distance(first,last);
+        const auto pivot = *std::next(first,rand()%length);;
+        auto partitions = threeWayPartitioning(first,last,pivot,comparator);
+        sort(first,partitions.at(0),comparator);
+        sort(partitions.at(1),last,comparator);
+        SortingAlgorithm<ITERATOR, COMPARATOR>::wait();
+    }
+    std::array<ITERATOR,2> threeWayPartitioning(const ITERATOR first,const ITERATOR last,const typename std::iterator_traits<ITERATOR>::value_type value, const COMPARATOR comparator = COMPARATOR ()){
+        auto start = first;
+        auto end = std::prev(last);
+        for(auto iterator = first;iterator!=std::next(end);){
+            if(comparator(*iterator,value)) std::swap(*iterator++,*start++);
+            else if(comparator(value,*iterator)) std::swap(*iterator,*end--);
+            else ++iterator;
+        }
+        return std::array<ITERATOR,2>{start,end};
+    }
+};
 #endif // SORTS_H
