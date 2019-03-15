@@ -3,6 +3,7 @@
 #include <QApplication>
 
 #include "main_window.h"
+#include "algorithm_visualizer_quad_tree.h"
 /*
  * What kind of algorithms can be visualized?
  *      - 2D stuff as KD-tree or Quad tree
@@ -49,7 +50,9 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     MainWindow w;
     AlgorithmVisualizerDummy anotherDummy;
+    AlgorithmVisualizerQuadTree quadTreeAV;
     w.addAlgorithmVisualizer(&anotherDummy);
+    w.addAlgorithmVisualizer(&quadTreeAV);
     w.show();
 
     return a.exec();

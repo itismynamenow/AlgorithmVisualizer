@@ -12,16 +12,25 @@ public:
     AlgorithmVisualizerBase(){
         timer = new QTimer(this);
         timer->start(updateTimeMs);
+        connect(timer,SIGNAL(timeout()),this,SLOT(update()));
     }
-    virtual void reset() override=0;
-    virtual void clear() override=0;
-    virtual void stopResume() override=0;
     virtual QString getName() override{
         return name;
     }
     virtual ~AlgorithmVisualizerBase() override{
         delete  timer;
     }
+public slots:
+    virtual void reset() override=0;
+    virtual void clear() override=0;
+    virtual void stopResume() override{
+        if(timer->isActive()){
+            timer->stop();
+        }else{
+            timer->start(updateTimeMs);
+        }
+    }
+
 protected:
     QString name{"Default Name"};
     //Update timer

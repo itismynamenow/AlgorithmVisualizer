@@ -24,10 +24,11 @@ public:
         painter.setBrush(QBrush(Qt::cyan));
         painter.drawRect(0,0,800,800);
     }
+    virtual QString getName() override{return QString("PlaceholderAlgorithm");}
+public slots:
     virtual void reset() override{std::cout<<"Reset"<<std::endl;}
     virtual void clear() override{std::cout<<"Clear"<<std::endl;}
     virtual void stopResume() override{std::cout<<"StopResume"<<std::endl;}
-    virtual QString getName() override{return QString("PlaceholderAlgorithm");}
 protected:
     void initUIPanel(){
         uiPanel.addLineOfWidgets({&someButton,&someLabel,&someLineEdit});

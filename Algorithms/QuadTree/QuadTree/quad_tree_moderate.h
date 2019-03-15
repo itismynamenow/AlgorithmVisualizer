@@ -1,9 +1,11 @@
 #ifndef QUAD_TREE_MODERATE_H
 #define QUAD_TREE_MODERATE_H
-#include <quad_tree.h>
 #include <unordered_map>
 #include <set>
 #include <unordered_set>
+
+
+#include "quad_tree.h"
 template <class T>
 class QuadTreeModerate;
 template <class T>

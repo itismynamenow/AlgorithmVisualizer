@@ -32,7 +32,8 @@ HEADERS += \
     algorithm_visualizer.h \
     ui_panel.h \
     algorithm_visualizer_base.h \
-    algorithm_visualizer_dummy.h
+    algorithm_visualizer_dummy.h \
+    algorithm_visualizer_quad_tree.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -47,9 +47,15 @@ protected:
 protected slots:
     void setCurrAlgorithmVisualiser(AlgorithmVisualizer* algorithmVisualizer){
         if(algorithmVisualizer != currAlgorithmVisualizer){
-            mainLayout.removeWidget(currAlgorithmVisualizer);
+            if(currAlgorithmVisualizer != nullptr){
+                mainLayout.removeWidget(currAlgorithmVisualizer);
+                currAlgorithmVisualizer->setEnabled(false);
+                currAlgorithmVisualizer->hide();
+            }
             currAlgorithmVisualizer = algorithmVisualizer;
             currAlgorithmVisualizer->setParent(this);
+            currAlgorithmVisualizer->setEnabled(true);
+            currAlgorithmVisualizer->show();
             mainLayout.addWidget(currAlgorithmVisualizer,0,0,2,1);
             currAlgorithmVisualizer->stackUnder(&uiPanel);
         }

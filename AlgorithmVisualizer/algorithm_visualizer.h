@@ -6,10 +6,13 @@ class AlgorithmVisualizer: public QWidget
     Q_OBJECT
 
 public:
+    virtual QString getName()=0;
+    virtual ~AlgorithmVisualizer()=default;
+public slots:
+
     virtual void reset()=0;
     virtual void clear()=0;
     virtual void stopResume()=0;
-    virtual QString getName()=0;
-    virtual ~AlgorithmVisualizer()=default;
+
 };
 #endif // ALGORITHM_VISUALIZER_H

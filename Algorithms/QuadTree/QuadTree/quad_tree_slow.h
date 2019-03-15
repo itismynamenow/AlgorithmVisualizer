@@ -1,7 +1,7 @@
 #ifndef QUADTREESLOW_H
 #define QUADTREESLOW_H
 #include <set>
-#include <quad_tree.h>
+#include "quad_tree.h"
 
 template <class T>
 class QuadTreeSlowVisualionHelper;
