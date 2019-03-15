@@ -3,6 +3,7 @@
 #include <QApplication>
 
 #include "main_window.h"
+#include "algorithm_visualizer_sorting.h"
 #include "algorithm_visualizer_quad_tree.h"
 /*
  * What kind of algorithms can be visualized?
@@ -50,9 +51,11 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     AlgorithmVisualizerQuadTree algorithmVisualizerQuadTree;
+    AlgorithmVisualizerSorting algorithmVisualizerSorting;
     AlgorithmVisualizerDummy algorithmVisualizerDummy;
 
-    MainWindow w{&algorithmVisualizerQuadTree};
+    MainWindow w{&algorithmVisualizerSorting};
+    w.addAlgorithmVisualizer(&algorithmVisualizerQuadTree);
     w.addAlgorithmVisualizer(&algorithmVisualizerDummy);
     w.show();
 
