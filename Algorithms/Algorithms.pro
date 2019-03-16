@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     QuadTree \
-    Sorting
+    Sorting \
+    VoronoiDiagram

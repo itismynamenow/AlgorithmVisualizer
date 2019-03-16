@@ -48,7 +48,6 @@ protected:
             this->sendPointsToQTree();
             callUpdate = true;
         }
-//        if(callUpdate) this->update();
     }
     virtual void paintEvent(QPaintEvent *event) override{
         QPainter painter(this);
@@ -90,7 +89,6 @@ protected:
         holder.boundingBox = AABB<int>(0,0,this->width(),this->height());
         holder.addElements(pointsToElements(points));
         points.clear();
-//        update();
     }
     vector<AABB<int>> pointsToElements(vector<QPoint> &points){
         vector<AABB<int>> elements;

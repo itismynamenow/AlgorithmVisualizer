@@ -23,6 +23,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 CONFIG += c++11
+QMAKE_CXXFLAGS += -save-temps
 
 SOURCES += \
         main.cpp
@@ -34,7 +35,8 @@ HEADERS += \
     algorithm_visualizer_base.h \
     algorithm_visualizer_dummy.h \
     algorithm_visualizer_quad_tree.h \
-    algorithm_visualizer_sorting.h
+    algorithm_visualizer_sorting.h \
+    algorithm_visualizer_voronoi.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

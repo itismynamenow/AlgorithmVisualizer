@@ -71,8 +71,6 @@ protected slots:
         random_shuffle(elementsToSort.begin(), elementsToSort.end());
         sorts.at(dropdown.currentIndex())->setStopper(&stopper);
         std::thread ([this]{(*sorts.at(dropdown.currentIndex())).sort(elementsToSort.begin(), elementsToSort.end());}).detach();
-//        auto t = new std::thread ([this]{insertionSort.sort(elementsToSort.begin(), elementsToSort.end());});
-//        t->detach();
     }
 
 protected:
