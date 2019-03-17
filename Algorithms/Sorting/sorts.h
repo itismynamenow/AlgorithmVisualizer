@@ -70,9 +70,9 @@ struct BubbleSort: public SortingAlgorithm<ITERATOR, COMPARATOR>{
                 if(!comparator(*iterator,*std::next(iterator))){
                     std::swap(*iterator,*std::next(iterator));
                     isSorted = false;
-                    SortingAlgorithm<ITERATOR, COMPARATOR>::wait();
                 }
-            }
+            }            
+            SortingAlgorithm<ITERATOR, COMPARATOR>::wait();
         }while(--end,!isSorted);
     }
     virtual ~BubbleSort(){}

@@ -32,9 +32,11 @@ protected:
             int meanWidth = availableWidth / elementsToSort.size();
             int availableHeight = this->height() - margin*2;
             int meanHeight = availableHeight / elementsToSort.size();
+            int roundoffXMargin = (availableWidth - elementsToSort.size() * meanWidth) / 2;
+            int roundoffYMargin = (availableHeight - elementsToSort.size() * meanHeight) / 2;
             for(int i=0;i<elementsToSort.size();i++){
-                int x = i * meanWidth + margin;
-                int y = (elementsToSort.size() - elementsToSort.at(i)) * meanHeight + margin;
+                int x = i * meanWidth + margin + roundoffXMargin;
+                int y = (elementsToSort.size() - elementsToSort.at(i)) * meanHeight + margin + roundoffYMargin;
                 int height = elementsToSort.at(i) * meanHeight;
                 painter.drawRect(x,y,meanWidth,height);
             }
@@ -92,14 +94,14 @@ protected slots:
 protected:
     UIPanel uiPanel;
     QPushButton randomButton{"Random"};
-    QLabel randomLabel{"in range from 1 to "};
-    QLineEdit randomLineEdit{"55"};
+    QLabel randomLabel{"of size "};
+    QLineEdit randomLineEdit{"99"};
     QComboBox dropdown;
-    QIntValidator randomInputValidator{1, 199};
+    QIntValidator randomInputValidator{1, 299};
     QLabel fpsLabel{"Sorting fps (1-200)"};
     QSlider fpsSlider;
     std::vector<int> elementsToSort;
-    int margin = 50;
+    int margin = 30;
     Stopper stopper;
     InsertionSort<typename std::vector<int>::iterator> insertionSort;
     SelectionSort<typename std::vector<int>::iterator> selectionSort;
