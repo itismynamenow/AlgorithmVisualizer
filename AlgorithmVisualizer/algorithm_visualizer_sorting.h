@@ -42,14 +42,26 @@ protected:
         stopper.stopped = false;
     }
     void initUIPanel(){
+        initDropdown();
+        initFpsUI();
         uiPanel.addLineOfWidgets({&randomButton, &randomLabel, &randomLineEdit, &dropdown});
-        connect(&randomButton, SIGNAL(clicked()), this, SLOT(setRandomData()));
+        uiPanel.addLineOfWidgets({&fpsLabel,&fpsSlider});
+        connect(&randomButton, SIGNAL(pressed()), this, SLOT(setRandomData()));
+        randomLineEdit.setValidator(&randomInputValidator);
+    }
+    void initFpsUI(){
+        connect(&fpsSlider,SIGNAL(valueChanged(int)),this,SLOT(setUpdateTime()));
+        fpsSlider.setMinimum(1);
+        fpsSlider.setMaximum(200);
+        fpsSlider.setValue(30);
+        fpsSlider.setOrientation(Qt::Horizontal);
+    }
+    void initDropdown(){
         dropdown.addItem("Insertion sort");
         dropdown.addItem("Selection sort");
         dropdown.addItem("Bubble sort");
         dropdown.addItem("Merge sort");
         dropdown.addItem("Quick sort");
-        randomLineEdit.setValidator(&randomInputValidator);
     }
     void initLayout(){
         mainLayout.addWidget(&uiPanel,0,0,1,1, Qt::AlignLeft | Qt::AlignTop);
@@ -72,6 +84,10 @@ protected slots:
         sorts.at(dropdown.currentIndex())->setStopper(&stopper);
         std::thread ([this]{(*sorts.at(dropdown.currentIndex())).sort(elementsToSort.begin(), elementsToSort.end());}).detach();
     }
+    void setUpdateTime(){
+        updateTimeMs = 1000/fpsSlider.value();
+        timer->start(updateTimeMs);
+    }
 
 protected:
     UIPanel uiPanel;
@@ -79,7 +95,9 @@ protected:
     QLabel randomLabel{"in range from 1 to "};
     QLineEdit randomLineEdit{"55"};
     QComboBox dropdown;
-    QIntValidator randomInputValidator{1, 99};
+    QIntValidator randomInputValidator{1, 199};
+    QLabel fpsLabel{"Sorting fps (1-200)"};
+    QSlider fpsSlider;
     std::vector<int> elementsToSort;
     int margin = 50;
     Stopper stopper;

@@ -100,14 +100,19 @@ struct QuickSort: public SortingAlgorithm<ITERATOR, COMPARATOR>{
         auto partitions = threeWayPartitioning(first,last,pivot,comparator);
         sort(first,partitions.at(0),comparator);
         sort(partitions.at(1),last,comparator);
-        SortingAlgorithm<ITERATOR, COMPARATOR>::wait();
     }
     std::array<ITERATOR,2> threeWayPartitioning(const ITERATOR first,const ITERATOR last,const typename std::iterator_traits<ITERATOR>::value_type value, const COMPARATOR comparator = COMPARATOR ()){
         auto start = first;
         auto end = std::prev(last);
         for(auto iterator = first;iterator!=std::next(end);){
-            if(comparator(*iterator,value)) std::swap(*iterator++,*start++);
-            else if(comparator(value,*iterator)) std::swap(*iterator,*end--);
+            if(comparator(*iterator,value)){
+                std::swap(*iterator++,*start++);
+                SortingAlgorithm<ITERATOR, COMPARATOR>::wait();
+            }
+            else if(comparator(value,*iterator)){
+                std::swap(*iterator,*end--);
+                SortingAlgorithm<ITERATOR, COMPARATOR>::wait();
+            }
             else ++iterator;
         }
         return std::array<ITERATOR,2>{start,end};
