@@ -4,6 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include <cmath>
+#include <limits>
 
 #include <QVector2D>
 
@@ -23,7 +24,7 @@ class KDTree
 {
 public:
     virtual ~KDTree()=default;
-    virtual KDTreeElement* getElementClosestTo(KDTreeElement* element)=0;
+    virtual std::vector<KDTreeElement*> getElementsClosestTo(KDTreeElement* element)=0;
     virtual void setNewElements(std::vector<KDTreeElement*> elements)=0;
     virtual void clear()=0;
     virtual KDTreeVisualizationHelper* getVisualizationHelper() const=0;
@@ -39,16 +40,20 @@ struct AABB{
     AABB(double xMin, double yMin, double xMax, double yMax):
         xMin(xMin),xMax(xMax),yMin(yMin),yMax(yMax){}
     double xMin,xMax,yMin,yMax;
-    std::array<AABB,2> split(int axis){
+    std::array<AABB,2> split(int axis, KDTreeElement *element) const{
         if(axis%2==0){
             return {
-                AABB(xMin,yMin,xMin+(xMax-xMin)/2,yMax),
-                AABB(xMin+(xMax-xMin)/2,yMin,xMax,yMax)};
+                AABB(xMin,yMin,element->x(),yMax),
+                AABB(element->x(),yMin,xMax,yMax)};
         }else{
             return {
-                AABB(xMin,yMin,xMax,yMin+(yMax-yMin)/2),
-                AABB(xMin,yMin+(yMax-yMin)/2,xMax,yMax)};
+                AABB(xMin,yMin,xMax,element->y()),
+                AABB(xMin,element->y(),xMax,yMax)};
         }
+    }
+    static AABB biggestAABB(){
+        return  AABB(std::numeric_limits<double>::min(),std::numeric_limits<double>::min(),
+                    std::numeric_limits<double>::max(),std::numeric_limits<double>::max());
     }
     double minDistanceTo(const KDTreeElement* element) const{
         bool isInsideXRange = xMin<=element->x() && xMax >= element->x();
@@ -128,10 +133,20 @@ public:
     virtual ~KDTreeFirstImpl() override{
         delete  visualizationHelper;
     }
-    virtual KDTreeElement* getElementClosestTo(KDTreeElement* element) override{
-        KDTreeElement* nearestElement = nullptr;
-
-        return nearestElement;
+    virtual std::vector<KDTreeElement*> getElementsClosestTo(KDTreeElement* element) override{
+        std::vector<KDTreeElement*> nearestElements;
+        if(nodes.size()>0){
+            int closestNodeId = -1;
+            double closestDistanceToElement = std::numeric_limits<double>::max();
+            searchForClosestNode(0,AABB::biggestAABB(),element,closestNodeId,closestDistanceToElement);
+            auto closestElement = nodes.at(closestNodeId).element;
+            if(sameValueElements.count(closestElement) != 0){
+                nearestElements = sameValueElements.at(closestElement);
+            }else{
+                nearestElements.push_back(closestElement);
+            }
+        }
+        return nearestElements;
     }
     virtual void setNewElements(std::vector<KDTreeElement*> elements) override{
         clear();
@@ -196,8 +211,19 @@ protected:
         nodes.at(nodeId).setElement(*middle);
         return nodeId;
     }
-    void searchForClosestNode(int currNodeId, int &closestNodeId, AABB &colosestNodeAAB, int iteration=0){
-
+    void searchForClosestNode(int currNodeId,const AABB &currNodeAABB, KDTreeElement *element,int &closestNodeId, double &closestDistanceToElement, int iteration=0){
+        double minPossibleDistanceToElement = currNodeAABB.minDistanceTo(element);
+        if(minPossibleDistanceToElement < closestDistanceToElement && currNodeId != -1){
+            auto currNode = nodes.at(currNodeId);
+            auto currDistanceToElement = (*currNode.element - *element).length();
+            if(currDistanceToElement < closestDistanceToElement){
+                closestNodeId = currNodeId;
+                closestDistanceToElement = currDistanceToElement;
+            }
+            auto aabbs = currNodeAABB.split(iteration,currNode.element);
+            searchForClosestNode(currNode.leftChildId,aabbs.at(0),element,closestNodeId,closestDistanceToElement,iteration+1);
+            searchForClosestNode(currNode.rightChildId,aabbs.at(1),element,closestNodeId,closestDistanceToElement,iteration+1);
+        }
     }
     int makeNode(){
         auto nodeId = nodes.size();

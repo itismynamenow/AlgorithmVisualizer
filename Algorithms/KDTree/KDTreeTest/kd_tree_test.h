@@ -1,4 +1,5 @@
-#pragma once
+#ifndef KD_TREE_TEST_H
+#define KD_TREE_TEST_H
 #include <iostream>
 
 #include <gtest/gtest.h>
@@ -131,106 +132,117 @@ TEST(KDTreeFirstImpl,buildTree){
 
 }
 
-//class KDTreeFirstImplFiveElementsOnSameLine: public  ::testing::Test {
-//    protected:
-//    void SetUp() override {
-//        kdTree = new KDTreeFirstImpl();
-//        elements = {
-//            KDTreeElement {0.5,1},
-//            KDTreeElement {1  ,2},
-//            KDTreeElement {2  ,4},
-//            KDTreeElement {4  ,8},
-//            KDTreeElement {444444  ,888888}
-//        };
-//        for(auto &element: elements){
-//            elementsPtr.push_back(&element);
-//        }
-//    }
-//    void TearDown() override {
-//        delete  kdTree;
-//    }
-//    KDTree *kdTree;
-//    std::vector<KDTreeElement*> elementsPtr;
-//private:
-//    std::vector<KDTreeElement> elements;
-//};
+class KDTreeFirstImplFiveElementsOnSameLine: public  ::testing::Test {
+    protected:
+    void SetUp() override {
+        kdTree = new KDTreeFirstImpl();
+        elements = {
+            KDTreeElement {444444  ,888888},
+            KDTreeElement {444444  ,888888},
+            KDTreeElement {444444  ,888888},
+            KDTreeElement {0.5,1},
+            KDTreeElement {1  ,2},
+            KDTreeElement {2  ,4},
+            KDTreeElement {4  ,8},
+            KDTreeElement {444444  ,888888}
+        };
+        for(auto &element: elements){
+            elementsPtr.push_back(&element);
+        }
+    }
+    void TearDown() override {
+        delete  kdTree;
+    }
+    KDTree *kdTree;
+    std::vector<KDTreeElement*> elementsPtr;
+private:
+    std::vector<KDTreeElement> elements;
+};
 
-//TEST_F(KDTreeFirstImplFiveElementsOnSameLine, FiveElements)
-//{
-//    kdTree->setNewElements(elementsPtr);
+TEST_F(KDTreeFirstImplFiveElementsOnSameLine,tElementsClosestTo)
+{
+    kdTree->setNewElements(elementsPtr);
 
-//    KDTreeElement referenceElement {4.5,9};
-//    auto closestElement = kdTree->getElementClosestTo(&referenceElement);
-//    EXPECT_TRUE(*closestElement == KDTreeElement (4 ,8));
+    KDTreeElement referenceElement {4.5,9};
+    auto closestElements = kdTree->getElementsClosestTo(&referenceElement);
+    EXPECT_TRUE(*closestElements.at(0) == KDTreeElement (4 ,8));
 
-//    referenceElement = KDTreeElement(0,0);
-//    closestElement = kdTree->getElementClosestTo(&referenceElement);
-//    EXPECT_TRUE(*closestElement == KDTreeElement (0.5,1));
+    referenceElement = KDTreeElement(0,0);
+    closestElements= kdTree->getElementsClosestTo(&referenceElement);
+    EXPECT_TRUE(*closestElements.at(0) == KDTreeElement (0.5,1));
 
-//    referenceElement = KDTreeElement(1,2);
-//    closestElement = kdTree->getElementClosestTo(&referenceElement);
-//    EXPECT_TRUE(*closestElement == KDTreeElement (1,2));
+    referenceElement = KDTreeElement(1,2);
+    closestElements= kdTree->getElementsClosestTo(&referenceElement);
+    EXPECT_TRUE(*closestElements.at(0) == KDTreeElement (1,2));
 
-//    referenceElement = KDTreeElement(1,2.1);
-//    closestElement = kdTree->getElementClosestTo(&referenceElement);
-//    EXPECT_TRUE(*closestElement == KDTreeElement (1,2));
+    referenceElement = KDTreeElement(1,2.1);
+    closestElements= kdTree->getElementsClosestTo(&referenceElement);
+    EXPECT_TRUE(*closestElements.at(0) == KDTreeElement (1,2));
 
-//    referenceElement = KDTreeElement(3.1,6.1);
-//    closestElement = kdTree->getElementClosestTo(&referenceElement);
-//    EXPECT_TRUE(*closestElement == KDTreeElement (4,8));
+    referenceElement = KDTreeElement(3.1,6.1);
+    closestElements= kdTree->getElementsClosestTo(&referenceElement);
+    EXPECT_TRUE(*closestElements.at(0) == KDTreeElement (4,8));
 
-//    referenceElement = KDTreeElement(2.9,5.9);
-//    closestElement = kdTree->getElementClosestTo(&referenceElement);
-//    EXPECT_TRUE(*closestElement == KDTreeElement (2,4));
+    referenceElement = KDTreeElement(2.9,5.9);
+    closestElements= kdTree->getElementsClosestTo(&referenceElement);
+    EXPECT_TRUE(*closestElements.at(0) == KDTreeElement (2,4));
 
-//    referenceElement = KDTreeElement(4444,8888);
-//    closestElement = kdTree->getElementClosestTo(&referenceElement);
-//    EXPECT_TRUE(*closestElement == KDTreeElement (4,8));
+    referenceElement = KDTreeElement(4444,8888);
+    closestElements= kdTree->getElementsClosestTo(&referenceElement);
+    EXPECT_TRUE(*closestElements.at(0) == KDTreeElement (4,8));
 
-//    referenceElement = KDTreeElement(5555,9999);
-//    closestElement = kdTree->getElementClosestTo(&referenceElement);
-//    EXPECT_TRUE(*closestElement == KDTreeElement (4,8));
+    referenceElement = KDTreeElement(5555,9999);
+    closestElements= kdTree->getElementsClosestTo(&referenceElement);
+    EXPECT_TRUE(*closestElements.at(0) == KDTreeElement (4,8));
 
-//    referenceElement = KDTreeElement(-4444,-8888);
-//    closestElement = kdTree->getElementClosestTo(&referenceElement);
-//    EXPECT_TRUE(*closestElement == KDTreeElement (0.5,1));
+    referenceElement = KDTreeElement(-4444,-8888);
+    closestElements= kdTree->getElementsClosestTo(&referenceElement);
+    EXPECT_TRUE(*closestElements.at(0) == KDTreeElement (0.5,1));
 
-//    referenceElement = KDTreeElement(-3333,-7777);
-//    closestElement = kdTree->getElementClosestTo(&referenceElement);
-//    EXPECT_TRUE(*closestElement == KDTreeElement (0.5,1));
+    referenceElement = KDTreeElement(-3333,-7777);
+    closestElements= kdTree->getElementsClosestTo(&referenceElement);
+    EXPECT_TRUE(*closestElements.at(0) == KDTreeElement (0.5,1));
 
-//    delete kdTree;
-//}
-
-//TEST(KDTreeFirstImplTest, ZeroElements)
-//{
-//    KDTree *kdTree = new KDTreeFirstImpl();
-//    KDTreeElement referenceElement {4.5,9};
-//    EXPECT_TRUE(kdTree->getElementClosestTo(&referenceElement) == nullptr);
-
-//    delete kdTree;
-//}
-
-//TEST(KDTreeFirstImplTest, Clear)
-//{
-//    KDTree *kdTree = new KDTreeFirstImpl();
-//    std::vector<KDTreeElement> elements{
-//        KDTreeElement {0.5,1},
-//        KDTreeElement {1  ,2},
-//        KDTreeElement {2  ,4},
-//        KDTreeElement {4  ,8},
-//        KDTreeElement {444444  ,888888}
-//    };
-//    std::vector<KDTreeElement*> elementsPtr;
-//    for(auto &element: elements){
-//        elementsPtr.push_back(&element);
-//    }
-//    kdTree->setNewElements(elementsPtr);
+    referenceElement = KDTreeElement(444449  ,888889);
+    closestElements= kdTree->getElementsClosestTo(&referenceElement);
+    EXPECT_TRUE(*closestElements.at(0) == KDTreeElement (444444  ,888888));
+    EXPECT_TRUE(closestElements.size() == 4);
+    for(auto element: closestElements){
+        EXPECT_TRUE(*element == KDTreeElement (444444  ,888888));
+    }
+}
 
 
-//    KDTreeElement referenceElement {4.5,9};
+TEST(KDTreeFirstImplTest, ZeroElements)
+{
+    KDTree *kdTree = new KDTreeFirstImpl();
+    KDTreeElement referenceElement {4.5,9};
+    EXPECT_TRUE(kdTree->getElementsClosestTo(&referenceElement).size()==0);
 
-//    kdTree->clear();
+    delete kdTree;
+}
 
-//    EXPECT_TRUE(kdTree->getElementClosestTo(&referenceElement) == nullptr);
-//}
+TEST(KDTreeFirstImplTest, Clear)
+{
+    KDTree *kdTree = new KDTreeFirstImpl();
+    std::vector<KDTreeElement> elements{
+        KDTreeElement {0.5,1},
+        KDTreeElement {1  ,2},
+        KDTreeElement {2  ,4},
+        KDTreeElement {4  ,8},
+        KDTreeElement {444444  ,888888}
+    };
+    std::vector<KDTreeElement*> elementsPtr;
+    for(auto &element: elements){
+        elementsPtr.push_back(&element);
+    }
+    kdTree->setNewElements(elementsPtr);
+
+
+    KDTreeElement referenceElement {4.5,9};
+
+    kdTree->clear();
+
+    EXPECT_TRUE(kdTree->getElementsClosestTo(&referenceElement).size() == 0);
+}
+#endif //KD_TREE_TEST_H
