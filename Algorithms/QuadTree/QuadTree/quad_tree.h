@@ -24,8 +24,7 @@ template <class T>
 class QuadTreeVisualionHelper;
 
 //Axis aligned bounding box
-template <class T,
-          typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>
+template <class T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>
 struct AABB{
     AABB():xMin(0),yMin(0),xMax(0),yMax(0){}
     AABB(T xMin,T yMin,T xMax,T yMax):xMin(xMin),yMin(yMin),xMax(xMax),yMax(yMax){}
@@ -72,15 +71,13 @@ struct QuadTreeElement{
     typedef QuadTreeElement<T>* ELEMENT_PTR;
     typedef QuadTreeElement<T>* Type;
 
-    QuadTreeElement(){countDefaultConstructor++;}
-    QuadTreeElement(const AABB<T> &aabb):aabb(aabb){countConstructor++;}
+    QuadTreeElement(){}
+    QuadTreeElement(const AABB<T> &aabb):aabb(aabb){}
     QuadTreeElement(const QuadTreeElement &another){
         this->aabb = another.aabb;
-        countCopyConstructor++;
     }
     QuadTreeElement(QuadTreeElement &&another){
         this->aabb = another.aabb;
-        countMoveConstructor++;
     }
     virtual ~QuadTreeElement(){}
     virtual bool doesOverlap(const AABB<T> &another)const{
@@ -98,21 +95,8 @@ struct QuadTreeElement{
     {
       return dynamic_cast<U*>(element);
     }
-
     AABB<T> aabb;
-    static int countConstructor;
-    static int countDefaultConstructor;
-    static int countCopyConstructor;
-    static int countMoveConstructor;
 };
-template <class T>
-int QuadTreeElement<T>::countConstructor = 0;
-template <class T>
-int QuadTreeElement<T>::countDefaultConstructor = 0;
-template <class T>
-int QuadTreeElement<T>::countCopyConstructor = 0;
-template <class T>
-int QuadTreeElement<T>::countMoveConstructor = 0;
 
 template <class T>
 class QuadTree{
