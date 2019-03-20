@@ -1,10 +1,6 @@
 #include <QApplication>
 #include <QWidget>
 
-#include <vector>
-
-#include "mainwindow.h"
-
 using namespace std;
 int main(int argc, char *argv[])
 {
