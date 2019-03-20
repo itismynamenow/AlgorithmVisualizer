@@ -1,4 +1,5 @@
 #include "kd_tree_test.h"
+#include "aabb_test.h"
 
 #include <gtest/gtest.h>
 

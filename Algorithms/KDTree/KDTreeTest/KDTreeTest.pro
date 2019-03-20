@@ -6,7 +6,8 @@ CONFIG -= app_bundle
 CONFIG += thread
 
 HEADERS += \
-    kd_tree_test.h
+    kd_tree_test.h \
+    aabb_test.h
 
 SOURCES += \
         main.cpp

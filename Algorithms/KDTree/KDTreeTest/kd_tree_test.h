@@ -127,7 +127,7 @@ TEST(KDTreeFirstImpl,buildTree){
     auto rootRight = nodes.at(rootNode.rightChildId);
     EXPECT_EQ(*rootRight.element,KDTreeElement (444444  ,888888));
     auto rootRightLeft = nodes.at(rootRight.leftChildId);
-    EXPECT_EQ(*rootRightLeft.element,KDTreeElement (4  ,8));
+    EXPECT_EQ(*rootRightLeft.element,KDTreeElement (4  ,8 ));
 
 }
 

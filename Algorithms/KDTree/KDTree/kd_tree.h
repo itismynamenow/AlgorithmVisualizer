@@ -1,16 +1,23 @@
 #ifndef KD_TREE_H
 #define KD_TREE_H
+#include <iostream>
 #include <vector>
 #include <unordered_map>
+#include <cmath>
 
 #include <QVector2D>
+
 
 #define FRIEND_TEST(test_case_name, test_name)\
 friend class test_case_name##_##test_name##_Test
 
+
+
 struct KDTreeElement;
 struct KDTreeVisualizationHelper;
 class KDTreeNode;
+
+
 
 class KDTree
 {
@@ -25,6 +32,51 @@ public:
 struct KDTreeElement: public QVector2D{
     KDTreeElement(){}
     KDTreeElement(float x,float y):QVector2D(x,y){}
+};
+
+struct AABB{
+    AABB():xMin(0),yMin(0),xMax(0),yMax(0){}
+    AABB(double xMin, double yMin, double xMax, double yMax):
+        xMin(xMin),xMax(xMax),yMin(yMin),yMax(yMax){}
+    double xMin,xMax,yMin,yMax;
+    std::array<AABB,2> split(int axis){
+        if(axis%2==0){
+            return {
+                AABB(xMin,yMin,xMin+(xMax-xMin)/2,yMax),
+                AABB(xMin+(xMax-xMin)/2,yMin,xMax,yMax)};
+        }else{
+            return {
+                AABB(xMin,yMin,xMax,yMin+(yMax-yMin)/2),
+                AABB(xMin,yMin+(yMax-yMin)/2,xMax,yMax)};
+        }
+    }
+    double minDistanceTo(const KDTreeElement* element) const{
+        bool isInsideXRange = xMin<=element->x() && xMax >= element->x();
+        bool isInsideYRange = yMin<=element->y() && yMax >= element->y();
+        if(isInsideXRange && isInsideYRange){
+            return 0;
+        }else if(isInsideXRange){
+            if(element->y() < yMin) return yMin - element->y();
+            else return element->y() - yMax;
+        }else if(isInsideYRange){
+            if(element->x() < xMin) return xMin - element->x();
+            else return element->x() - xMax;
+        }else{
+            double closestX, closestY;
+            if(element->x() < xMin) closestX = xMin;
+            else closestX = xMax;
+            if(element->y() < yMin) closestY = yMin;
+            else closestY = yMax;
+            return sqrt(pow(closestX-element->x(),2)+pow(closestY-element->y(),2));
+        }
+    }
+    bool operator ==(const AABB &other) const{
+        return xMin == other.xMin && yMin == other.yMin &&
+               xMax == other.xMax && yMax == other.yMax;
+    }
+    void print(){
+        std::cout<<"xMin = "<<xMin<<" yMin = "<<yMin<<" xMax = "<<xMax<<" yMax = "<<yMax<<std::endl;
+    }
 };
 
 struct KDTreeVisualizationHelper{
@@ -84,6 +136,8 @@ public:
     virtual void setNewElements(std::vector<KDTreeElement*> elements) override{
         clear();
         sortElements(elements);
+        removeAndHashNonUniqueElements(elements);
+        buildTree(elements.begin(),elements.end());
     }
     virtual void clear() override{
         nodes.clear();
@@ -129,7 +183,7 @@ protected:
         auto distance = std::distance(first,last);
         auto middle = std::next(first,distance/2);
         int nodeId = makeNode();
-        if(first != std::prev(last)){
+        if(std::next(first) != last){
             auto comparator = [iteration](const KDTreeElement* a,const KDTreeElement* b){
                 if(iteration%2 == 0) return a->x() < b->x();
                 else return a->y() < b->y();
@@ -137,10 +191,13 @@ protected:
             std::nth_element(first,middle,last,comparator);
             int leftChildId = buildTree(first,middle,iteration+1);
             int rightChildId = buildTree(std::next(middle),last,iteration+1);
-            nodes.at(nodeId).setElement(*middle);
             nodes.at(nodeId).setChildren(leftChildId,rightChildId);
         }
+        nodes.at(nodeId).setElement(*middle);
         return nodeId;
+    }
+    void searchForClosestNode(int currNodeId, int &closestNodeId, AABB &colosestNodeAAB, int iteration=0){
+
     }
     int makeNode(){
         auto nodeId = nodes.size();
