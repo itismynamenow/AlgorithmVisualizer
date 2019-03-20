@@ -7,19 +7,19 @@
 
 #include "../KDTree/kd_tree.h"
 
-TEST(AABB,split){
-    AABB aabb{2,4,10,20};
+TEST(AABB_D,split){
+    AABB_D aabb{2,4,10,20};
     KDTreeElement element{6,12};
     auto halfsByX = aabb.split(0,&element);
-    EXPECT_TRUE(halfsByX.at(0)==AABB(2,4,6,20));
-    EXPECT_TRUE(halfsByX.at(1)==AABB(6,4,10,20));
+    EXPECT_TRUE(halfsByX.at(0)==AABB_D(2,4,6,20));
+    EXPECT_TRUE(halfsByX.at(1)==AABB_D(6,4,10,20));
     auto halfsByY = aabb.split(1,&element);
-    EXPECT_TRUE(halfsByY.at(0)==AABB(2,4,10,12));
-    EXPECT_TRUE(halfsByY.at(1)==AABB(2,12,10,20));
+    EXPECT_TRUE(halfsByY.at(0)==AABB_D(2,4,10,12));
+    EXPECT_TRUE(halfsByY.at(1)==AABB_D(2,12,10,20));
 }
 
-TEST(AABB, minDistanceTo){
-    AABB aabb{3,4,11,32};
+TEST(AABB_D, minDistanceTo){
+    AABB_D aabb{3,4,11,32};
     KDTreeElement el0 {0,0};
     EXPECT_NEAR(aabb.minDistanceTo(&el0),5,0.0001);
     KDTreeElement el1 {5,-100};

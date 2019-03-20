@@ -6,6 +6,7 @@
 #include "algorithm_visualizer_sorting.h"
 #include "algorithm_visualizer_quad_tree.h"
 #include "algorithm_visualizer_voronoi.h"
+#include "algorithm_visualizer_kd_tree.h"
 /*
  * What kind of algorithms can be visualized?
  *      - 2D stuff as KD-tree or Quad tree
@@ -51,12 +52,14 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
+    AlgorithmVisualizerKDTree algorithmVisualizerKDTree;
     AlgorithmVisualizerVoronoi algorithmVisualizerVoronoi;
     AlgorithmVisualizerQuadTree algorithmVisualizerQuadTree;
     AlgorithmVisualizerSorting algorithmVisualizerSorting;
     AlgorithmVisualizerDummy algorithmVisualizerDummy;
 
-    MainWindow w{&algorithmVisualizerVoronoi};
+    MainWindow w{&algorithmVisualizerKDTree};
+    w.addAlgorithmVisualizer(&algorithmVisualizerVoronoi);
     w.addAlgorithmVisualizer(&algorithmVisualizerSorting);
     w.addAlgorithmVisualizer(&algorithmVisualizerQuadTree);
     w.addAlgorithmVisualizer(&algorithmVisualizerDummy);

@@ -8,7 +8,6 @@
 
 #include <QVector2D>
 
-
 #define FRIEND_TEST(test_case_name, test_name)\
 friend class test_case_name##_##test_name##_Test
 
@@ -20,6 +19,27 @@ class KDTreeNode;
 
 
 
+struct KDTreeElement: public QVector2D{
+    KDTreeElement(){}
+    KDTreeElement(float x,float y):QVector2D(x,y){}
+};
+
+
+class KDTreeNode{
+public:
+    KDTreeNode(){}
+    KDTreeNode(KDTreeElement *element):element(element){}
+    void setChildren(int leftChildId, int rightChildId){
+        this->leftChildId = leftChildId;
+        this->rightChildId = rightChildId;
+    }
+    void setElement(KDTreeElement *element){
+        this->element = element;
+    }
+    int leftChildId = -1, rightChildId = -1;
+    KDTreeElement* element = nullptr;
+};
+
 class KDTree
 {
 public:
@@ -27,32 +47,31 @@ public:
     virtual std::vector<KDTreeElement*> getElementsClosestTo(KDTreeElement* element)=0;
     virtual void setNewElements(std::vector<KDTreeElement*> elements)=0;
     virtual void clear()=0;
-    virtual KDTreeVisualizationHelper* getVisualizationHelper() const=0;
 };
 
-struct KDTreeElement: public QVector2D{
-    KDTreeElement(){}
-    KDTreeElement(float x,float y):QVector2D(x,y){}
+struct KDTreeVisualizationHelper{
+    virtual ~KDTreeVisualizationHelper(){};
+    virtual std::vector<std::pair<std::array<double,4>,int>> getSeparatingLines()=0;
 };
 
-struct AABB{
-    AABB():xMin(0),yMin(0),xMax(0),yMax(0){}
-    AABB(double xMin, double yMin, double xMax, double yMax):
+struct AABB_D{
+    AABB_D():xMin(0),yMin(0),xMax(0),yMax(0){}
+    AABB_D(double xMin, double yMin, double xMax, double yMax):
         xMin(xMin),xMax(xMax),yMin(yMin),yMax(yMax){}
     double xMin,xMax,yMin,yMax;
-    std::array<AABB,2> split(int axis, KDTreeElement *element) const{
+    std::array<AABB_D,2> split(int axis, KDTreeElement *element) const{
         if(axis%2==0){
             return {
-                AABB(xMin,yMin,element->x(),yMax),
-                AABB(element->x(),yMin,xMax,yMax)};
+                AABB_D(xMin,yMin,element->x(),yMax),
+                AABB_D(element->x(),yMin,xMax,yMax)};
         }else{
             return {
-                AABB(xMin,yMin,xMax,element->y()),
-                AABB(xMin,element->y(),xMax,yMax)};
+                AABB_D(xMin,yMin,xMax,element->y()),
+                AABB_D(xMin,element->y(),xMax,yMax)};
         }
     }
-    static AABB biggestAABB(){
-        return  AABB(std::numeric_limits<double>::min(),std::numeric_limits<double>::min(),
+    static AABB_D biggestAABB(){
+        return  AABB_D(std::numeric_limits<double>::min(),std::numeric_limits<double>::min(),
                     std::numeric_limits<double>::max(),std::numeric_limits<double>::max());
     }
     double minDistanceTo(const KDTreeElement* element) const{
@@ -75,7 +94,7 @@ struct AABB{
             return sqrt(pow(closestX-element->x(),2)+pow(closestY-element->y(),2));
         }
     }
-    bool operator ==(const AABB &other) const{
+    bool operator ==(const AABB_D &other) const{
         return xMin == other.xMin && yMin == other.yMin &&
                xMax == other.xMax && yMax == other.yMax;
     }
@@ -84,61 +103,21 @@ struct AABB{
     }
 };
 
-struct KDTreeVisualizationHelper{
-    virtual ~KDTreeVisualizationHelper(){};
-};
 
-class KDTreeBase: public KDTree
-{
+class KDTreeFirstImpl: public KDTree{
 public:
-    virtual ~KDTreeBase() override=default;
-    virtual KDTreeVisualizationHelper* getVisualizationHelper() const override{
-        return visualizationHelper;
-    }
-protected:
-    friend struct KDTreeVisualizationHelper;
-    KDTreeVisualizationHelper *visualizationHelper;
-};
-
-
-struct KDTreeFirstImplVisualizationHelper: public KDTreeVisualizationHelper{
-    virtual ~KDTreeFirstImplVisualizationHelper(){}
-};
-
-class KDTreeNode{
-public:
-    KDTreeNode(){}
-    KDTreeNode(KDTreeElement *element):element(element){}
-    void setChildren(int leftChildId, int rightChildId){
-        this->leftChildId = leftChildId;
-        this->rightChildId = rightChildId;
-    }
-    void setElement(KDTreeElement *element){
-        this->element = element;
-    }
-    int leftChildId = -1, rightChildId = -1;
-    KDTreeElement* element = nullptr;
-};
-
-
-
-class KDTreeFirstImpl: public KDTreeBase{
-public:
-    KDTreeFirstImpl(){
-        visualizationHelper = new KDTreeFirstImplVisualizationHelper();
-    }
+    KDTreeFirstImpl(){ }
     KDTreeFirstImpl(const std::vector<KDTreeElement*> &elements): KDTreeFirstImpl(){
         setNewElements(elements);
     }
     virtual ~KDTreeFirstImpl() override{
-        delete  visualizationHelper;
     }
     virtual std::vector<KDTreeElement*> getElementsClosestTo(KDTreeElement* element) override{
         std::vector<KDTreeElement*> nearestElements;
         if(nodes.size()>0){
             int closestNodeId = -1;
             double closestDistanceToElement = std::numeric_limits<double>::max();
-            searchForClosestNode(0,AABB::biggestAABB(),element,closestNodeId,closestDistanceToElement);
+            searchForClosestNode(0,AABB_D::biggestAABB(),element,closestNodeId,closestDistanceToElement);
             auto closestElement = nodes.at(closestNodeId).element;
             if(sameValueElements.count(closestElement) != 0){
                 nearestElements = sameValueElements.at(closestElement);
@@ -211,7 +190,7 @@ protected:
         nodes.at(nodeId).setElement(*middle);
         return nodeId;
     }
-    void searchForClosestNode(int currNodeId,const AABB &currNodeAABB, KDTreeElement *element,int &closestNodeId, double &closestDistanceToElement, int iteration=0){
+    void searchForClosestNode(int currNodeId,const AABB_D &currNodeAABB, KDTreeElement *element,int &closestNodeId, double &closestDistanceToElement, int iteration=0){
         double minPossibleDistanceToElement = currNodeAABB.minDistanceTo(element);
         if(minPossibleDistanceToElement < closestDistanceToElement && currNodeId != -1){
             auto currNode = nodes.at(currNodeId);
@@ -221,8 +200,16 @@ protected:
                 closestDistanceToElement = currDistanceToElement;
             }
             auto aabbs = currNodeAABB.split(iteration,currNode.element);
-            searchForClosestNode(currNode.leftChildId,aabbs.at(0),element,closestNodeId,closestDistanceToElement,iteration+1);
-            searchForClosestNode(currNode.rightChildId,aabbs.at(1),element,closestNodeId,closestDistanceToElement,iteration+1);
+            auto leftChildDistanceToElement = (*nodes.at(currNode.leftChildId).element - *element).length();
+            auto rightChildDistanceToElement = (*nodes.at(currNode.rightChildId).element - *element).length();
+            if(leftChildDistanceToElement < rightChildDistanceToElement){
+                searchForClosestNode(currNode.leftChildId,aabbs.at(0),element,closestNodeId,closestDistanceToElement,iteration+1);
+                searchForClosestNode(currNode.rightChildId,aabbs.at(1),element,closestNodeId,closestDistanceToElement,iteration+1);
+            }else{
+                searchForClosestNode(currNode.rightChildId,aabbs.at(1),element,closestNodeId,closestDistanceToElement,iteration+1);
+                searchForClosestNode(currNode.leftChildId,aabbs.at(0),element,closestNodeId,closestDistanceToElement,iteration+1);
+            }
+
         }
     }
     int makeNode(){
@@ -231,6 +218,7 @@ protected:
         return nodeId;
     }
 protected:
+    friend class KDTreeFirstImplVisualizationHelper;
     FRIEND_TEST(KDTreeFirstImpl,sortElements);
     FRIEND_TEST(KDTreeFirstImpl,removeAndHashNonUniqueElements);
     FRIEND_TEST(KDTreeFirstImpl,buildTree);
@@ -238,6 +226,32 @@ protected:
     std::unordered_map<KDTreeElement*,std::vector<KDTreeElement*>> sameValueElements;
 };
 
+struct KDTreeFirstImplVisualizationHelper: public KDTreeVisualizationHelper{
+    KDTreeFirstImplVisualizationHelper(KDTreeFirstImpl *kdTree):kdTree(kdTree){}
+    virtual ~KDTreeFirstImplVisualizationHelper(){}
+    virtual std::vector<std::pair<std::array<double,4>,int>> getSeparatingLines(){
+        std::vector<std::pair<std::array<double,4>,int>> result;
+        if(kdTree->nodes.size() > 0){
+            iterateOverKDTree(0,AABB_D(0,0,800,800),result);
+        }
+        return result;
+    }
+protected:
+    void iterateOverKDTree(int currNodeId, AABB_D aabb,std::vector<std::pair<std::array<double,4>,int>> &lineData, int iteration=0){
+        if(currNodeId==-1) return;
+        auto currNode = kdTree->nodes.at(currNodeId);
+        auto currElement = currNode.element;
+        if(iteration%2==0){
+            lineData.push_back(std::pair<std::array<double,4>,int>(std::array<double,4>{currElement->x(),aabb.yMin,currElement->x(),aabb.yMax},iteration));
+        }else{
+            lineData.push_back(std::pair<std::array<double,4>,int>(std::array<double,4>{aabb.xMin,currElement->y(),aabb.xMax,currElement->y()},iteration));
+        }
+        auto aabbs = aabb.split(iteration,currElement);
+        iterateOverKDTree(currNode.leftChildId,aabbs.at(0),lineData,iteration+1);
+        iterateOverKDTree(currNode.rightChildId,aabbs.at(1),lineData,iteration+1);
+    }
+    KDTreeFirstImpl *kdTree;
+};
 
 
 #endif // KD_TREE_H

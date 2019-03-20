@@ -14,9 +14,6 @@ class AlgorithmVisualizerQuadTree: public AlgorithmVisualizerBase{
         initUIPanel();
         initLayout();
     }
-    virtual QString getName() override{
-        return name;
-    }
     void setPoints(vector<QPoint> points){
         holder.reset();
         holder.boundingBox = AABB<int>(0,0,this->width(),this->height());
