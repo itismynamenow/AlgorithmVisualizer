@@ -16,6 +16,7 @@ friend class test_case_name##_##test_name##_Test
 struct KDTreeElement;
 struct KDTreeVisualizationHelper;
 class KDTreeNode;
+struct AABB_D;
 
 
 
@@ -52,6 +53,7 @@ public:
 struct KDTreeVisualizationHelper{
     virtual ~KDTreeVisualizationHelper(){};
     virtual std::vector<std::pair<std::array<double,4>,int>> getSeparatingLines()=0;
+    virtual std::vector<AABB_D> getVisitedAABBs()=0;
 };
 
 struct AABB_D{
@@ -114,6 +116,7 @@ public:
     }
     virtual std::vector<KDTreeElement*> getElementsClosestTo(KDTreeElement* element) override{
         std::vector<KDTreeElement*> nearestElements;
+        visitedAABBs.clear();
         if(nodes.size()>0){
             int closestNodeId = -1;
             double closestDistanceToElement = std::numeric_limits<double>::max();
@@ -136,6 +139,7 @@ public:
     virtual void clear() override{
         nodes.clear();
         sameValueElements.clear();
+        visitedAABBs.clear();
     }
 
 protected:
@@ -193,6 +197,7 @@ protected:
     void searchForClosestNode(int currNodeId,const AABB_D &currNodeAABB, KDTreeElement *element,int &closestNodeId, double &closestDistanceToElement, int iteration=0){
         double minPossibleDistanceToElement = currNodeAABB.minDistanceTo(element);
         if(minPossibleDistanceToElement < closestDistanceToElement && currNodeId != -1){
+            visitedAABBs.push_back(currNodeAABB);
             auto currNode = nodes.at(currNodeId);
             auto currDistanceToElement = (*currNode.element - *element).length();
             if(currDistanceToElement < closestDistanceToElement){
@@ -200,16 +205,21 @@ protected:
                 closestDistanceToElement = currDistanceToElement;
             }
             auto aabbs = currNodeAABB.split(iteration,currNode.element);
-            auto leftChildDistanceToElement = (*nodes.at(currNode.leftChildId).element - *element).length();
-            auto rightChildDistanceToElement = (*nodes.at(currNode.rightChildId).element - *element).length();
-            if(leftChildDistanceToElement < rightChildDistanceToElement){
+            if(currNode.leftChildId != -1 && currNode.rightChildId != -1){
+                auto leftChildDistanceToElement = (*nodes.at(currNode.leftChildId).element - *element).length();
+                auto rightChildDistanceToElement = (*nodes.at(currNode.rightChildId).element - *element).length();
+                if(leftChildDistanceToElement < rightChildDistanceToElement){
+                    searchForClosestNode(currNode.leftChildId,aabbs.at(0),element,closestNodeId,closestDistanceToElement,iteration+1);
+                    searchForClosestNode(currNode.rightChildId,aabbs.at(1),element,closestNodeId,closestDistanceToElement,iteration+1);
+                }else{
+                    searchForClosestNode(currNode.rightChildId,aabbs.at(1),element,closestNodeId,closestDistanceToElement,iteration+1);
+                    searchForClosestNode(currNode.leftChildId,aabbs.at(0),element,closestNodeId,closestDistanceToElement,iteration+1);
+                }
+            }else if(currNode.leftChildId != -1){
                 searchForClosestNode(currNode.leftChildId,aabbs.at(0),element,closestNodeId,closestDistanceToElement,iteration+1);
+            }else if(currNode.rightChildId != -1){
                 searchForClosestNode(currNode.rightChildId,aabbs.at(1),element,closestNodeId,closestDistanceToElement,iteration+1);
-            }else{
-                searchForClosestNode(currNode.rightChildId,aabbs.at(1),element,closestNodeId,closestDistanceToElement,iteration+1);
-                searchForClosestNode(currNode.leftChildId,aabbs.at(0),element,closestNodeId,closestDistanceToElement,iteration+1);
             }
-
         }
     }
     int makeNode(){
@@ -224,6 +234,7 @@ protected:
     FRIEND_TEST(KDTreeFirstImpl,buildTree);
     std::vector<KDTreeNode> nodes;
     std::unordered_map<KDTreeElement*,std::vector<KDTreeElement*>> sameValueElements;
+    std::vector<AABB_D> visitedAABBs;
 };
 
 struct KDTreeFirstImplVisualizationHelper: public KDTreeVisualizationHelper{
@@ -235,6 +246,9 @@ struct KDTreeFirstImplVisualizationHelper: public KDTreeVisualizationHelper{
             iterateOverKDTree(0,AABB_D(0,0,800,800),result);
         }
         return result;
+    }
+    virtual std::vector<AABB_D> getVisitedAABBs() override{
+        return kdTree->visitedAABBs;
     }
 protected:
     void iterateOverKDTree(int currNodeId, AABB_D aabb,std::vector<std::pair<std::array<double,4>,int>> &lineData, int iteration=0){
