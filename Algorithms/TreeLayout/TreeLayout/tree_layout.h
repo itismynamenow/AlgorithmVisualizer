@@ -73,13 +73,15 @@ protected:
             auto prevSpacing = (prevLevelOne.at(1) - prevLevelOne.at(0) - node->width) / (treesAdded-1);
             auto currentSpacing = levels.at(1).at(1) - prevLevelOne.at(1);
             if(prevSpacing > currentSpacing){
-                for(int i=0;i<levels.size();i++){
+                for(int i=1;i<levels.size();i++){
                     if(levelsLastTreeId.at(i) == treesAdded+1){
                         levels.at(i).at(1) += - currentSpacing + prevSpacing;
                     }
                 }
             }else if(prevSpacing < currentSpacing){
-
+                for(int i=1;i<levels.size();i++){
+                    levels.at(i).at(1) += (currentSpacing - prevSpacing) * (treesAdded-1);
+                }
             }
         }
     }

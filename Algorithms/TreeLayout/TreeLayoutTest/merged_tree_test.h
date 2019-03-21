@@ -139,7 +139,39 @@ TEST(MergedTree, add)
  *           |     |     |        |     |        |     |     |     |     |     |     |     |     |
  * lvl2     tr1   tr2   tr3      tr5   tr6      tr11  tr12  tr13  tr14  tr15  tr16  tr17  tr18  tr19
  *
- * xCoords:  0     1     2     3     4     5     6     7     8     9     10    11    12    13
+ * xCoords:  0     1     2     3     4     5     6     7     8     9     10    11    12    13    14
  */
+
+    MergedTree mt9{&tr0};
+
+    MergedTree mt11{&tr0};
+    MergedTree mt12{&tr0};
+    MergedTree mt13{&tr0};
+    MergedTree mt14{&tr0};
+    MergedTree mt15{&tr0};
+    MergedTree mt16{&tr0};
+    MergedTree mt17{&tr0};
+    MergedTree mt18{&tr0};
+    MergedTree mt19{&tr0};
+
+    mt9.add(&mt11);
+    mt9.add(&mt12);
+    mt9.add(&mt13);
+    mt9.add(&mt14);
+    mt9.add(&mt15);
+    mt9.add(&mt16);
+    mt9.add(&mt17);
+    mt9.add(&mt18);
+    mt9.add(&mt19);
+
+    mt7.add(&mt9);
+
+    EXPECT_EQ(mt7.levels.size(),3);
+    EXPECT_FLOAT_EQ(mt7.levels.at(0).at(0), 5.5);
+    EXPECT_FLOAT_EQ(mt7.levels.at(0).at(1), 6.5);
+    EXPECT_FLOAT_EQ(mt7.levels.at(1).at(0), 1);
+    EXPECT_FLOAT_EQ(mt7.levels.at(1).at(1), 11);
+    EXPECT_FLOAT_EQ(mt7.levels.at(2).at(0), 0);
+    EXPECT_FLOAT_EQ(mt7.levels.at(2).at(1), 15);
 }
 #endif // MERGED_TREE_TEST_H
