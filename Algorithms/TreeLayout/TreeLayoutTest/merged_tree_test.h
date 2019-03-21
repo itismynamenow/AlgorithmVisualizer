@@ -16,7 +16,7 @@ TEST(MergedTree, add)
  *           |   |   |
  * lvl1     tr1 tr2 tr3
  *
- * xCoords: 0   1   2   3
+ * xCoords:  0   1   2   3
  */
     TreeNode tr0;
     MergedTree mt0{&tr0};
@@ -39,7 +39,7 @@ TEST(MergedTree, add)
  *           |   |
  * lvl1     tr5 tr6
  *
- * xCoords: 0   1  2
+ * xCoords:  0   1   2
  */
     MergedTree mt4{&tr0};
     MergedTree mt5{&tr0};
@@ -65,7 +65,7 @@ TEST(MergedTree, add)
  *           |   |   |
  * lvl2     tr1 tr2 tr3
  *
- * xCoords: 0   1   2  3
+ * xCoords:  0   1   2  3
  */
     MergedTree mt7{&tr0};
 
@@ -90,7 +90,7 @@ TEST(MergedTree, add)
  *           |   |   |   |   |
  * lvl2     tr1 tr2 tr3 tr5 tr6
  *
- * xCoords: 0   1   2   3   4   5
+ * xCoords:  0   1   2   3   4   5
  */
     mt7.add(&mt4);
 
@@ -101,5 +101,45 @@ TEST(MergedTree, add)
     EXPECT_FLOAT_EQ(mt7.levels.at(1).at(1), 4.5);
     EXPECT_FLOAT_EQ(mt7.levels.at(2).at(0), 0);
     EXPECT_FLOAT_EQ(mt7.levels.at(2).at(1), 5);
+/*
+ *
+ * lvl0                   tr7
+ *                         |
+ *               _____________________
+ *               |         |         |
+ * lvl1         tr0       tr4       tr8
+ *               |         |
+ *           _________   _____
+ *           |   |   |   |   |
+ * lvl2     tr1 tr2 tr3 tr5 tr6
+ *
+ * xCoords:  0   1   2   3   4   5   6   7
+ */
+
+    MergedTree mt8{&tr0};
+
+    mt7.add(&mt8);
+
+    EXPECT_EQ(mt7.levels.size(),3);
+    EXPECT_FLOAT_EQ(mt7.levels.at(0).at(0), 3.5);
+    EXPECT_FLOAT_EQ(mt7.levels.at(0).at(1), 4.5);
+    EXPECT_FLOAT_EQ(mt7.levels.at(1).at(0), 1);
+    EXPECT_FLOAT_EQ(mt7.levels.at(1).at(1), 7);
+    EXPECT_FLOAT_EQ(mt7.levels.at(2).at(0), 0);
+    EXPECT_FLOAT_EQ(mt7.levels.at(2).at(1), 5);
+/*
+ *
+ * lvl0                                      tr7
+ *                                            |
+ *                 ______________________________________________________
+ *                 |                 |                 |                 |
+ * lvl1           tr0               tr4               tr8               tr9
+ *                 |                 |                                   |
+ *           _____________        _______        _________________________________________________
+ *           |     |     |        |     |        |     |     |     |     |     |     |     |     |
+ * lvl2     tr1   tr2   tr3      tr5   tr6      tr11  tr12  tr13  tr14  tr15  tr16  tr17  tr18  tr19
+ *
+ * xCoords:  0     1     2     3     4     5     6     7     8     9     10    11    12    13
+ */
 }
 #endif // MERGED_TREE_TEST_H
