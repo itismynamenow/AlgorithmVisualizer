@@ -4,4 +4,5 @@ SUBDIRS += \
     QuadTree \
     Sorting \
     VoronoiDiagram \
-    KDTree
+    KDTree \
+    TreeLayout
