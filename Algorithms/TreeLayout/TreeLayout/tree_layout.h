@@ -23,6 +23,7 @@ public:
         auto totalLevels = std::max(this->levels.size(),another->levels.size()+levelOffset);
         if(this->levels.size() < totalLevels){
             this->levels.resize(totalLevels,{0,0});
+            levelsFirstTreeId.resize(totalLevels,0);
             levelsLastTreeId.resize(totalLevels,0);
         }
         //Find how much entire another tree will be shifted right
@@ -48,6 +49,7 @@ public:
             if(thisLevel.at(1)==0){
                 //Take xMin (thisLevel.at(0)) from anotherLevel
                 thisLevel.at(0) = anotherLevel.at(0) + maxAnotherOffset;
+                levelsFirstTreeId.at(i) = treesAdded+1;
             }
             thisLevel.at(1) =  anotherLevel.at(0) + anotherLevelWidth + maxAnotherOffset;
             levelsLastTreeId.at(i) = treesAdded+1;
@@ -76,10 +78,19 @@ protected:
                     if(levelsLastTreeId.at(i) == treesAdded+1){
                         levels.at(i).at(1) += - currentSpacing + prevSpacing;
                     }
+                    if(levelsFirstTreeId.at(i) == treesAdded+1){
+                        levels.at(i).at(0) += - currentSpacing + prevSpacing;
+                    }
                 }
             }else if(prevSpacing < currentSpacing){
                 for(int i=1;i<levels.size();i++){
-                    levels.at(i).at(1) += (currentSpacing - prevSpacing) * (treesAdded-1);
+                    levels.at(i).at(0) += (currentSpacing - prevSpacing) * (levelsFirstTreeId.at(i)-1);
+                    //Last element of level already has right spacing if it was just modified so we exclude it
+                    if(levelsLastTreeId.at(i) == treesAdded+1){
+                        levels.at(i).at(1) += (currentSpacing - prevSpacing) * (levelsLastTreeId.at(i)-2);
+                    }else{
+                        levels.at(i).at(1) += (currentSpacing - prevSpacing) * (levelsLastTreeId.at(i)-1);
+                    }
                 }
             }
         }
@@ -89,6 +100,8 @@ protected:
     std::vector<std::array<double,2>> levels;
     //Saves id of last subtree that was added to given level
     std::vector<int> levelsLastTreeId;
+    //Saves id of first subtree that was added to given level
+    std::vector<int> levelsFirstTreeId;
     std::array<double,2> prevLevelOne;
     int treesAdded = 0;
     TreeNode *node;
