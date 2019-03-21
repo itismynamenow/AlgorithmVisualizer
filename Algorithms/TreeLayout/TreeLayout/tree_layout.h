@@ -30,9 +30,8 @@ public:
         int maxAnotherOffsetLevel=0;
         for(int i=levelOffset;i<levelOffset+another->levels.size();i++){
             auto &thisLevel = this->levels.at(i);
-            auto thisLevelWidth = thisLevel.at(1) - thisLevel.at(0);
             auto &anotherLevel = another->levels.at(i-levelOffset);
-            double currAnotherOffset = thisLevelWidth - anotherLevel.at(0);
+            double currAnotherOffset = thisLevel.at(1) - anotherLevel.at(0);
             if(currAnotherOffset > maxAnotherOffset){
                 maxAnotherOffset = currAnotherOffset;
                 maxAnotherOffsetLevel = i;
@@ -48,9 +47,9 @@ public:
             //Check if there is no nodes on the level
             if(thisLevel.at(1)==0){
                 //Take xMin (thisLevel.at(0)) from anotherLevel
-                thisLevel.at(0) = anotherLevel.at(0);
+                thisLevel.at(0) = anotherLevel.at(0) + maxAnotherOffset;
             }
-            thisLevel.at(1) = anotherLevel.at(0) + anotherLevelWidth + maxAnotherOffset;
+            thisLevel.at(1) =  anotherLevel.at(0) + anotherLevelWidth + maxAnotherOffset;
             levelsLastTreeId.at(i) = treesAdded+1;
         }
         spreadSubtreesEqually();
