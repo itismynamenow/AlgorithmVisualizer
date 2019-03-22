@@ -125,7 +125,8 @@ protected:
                         levels.at(i).at(0) += - currentSpacing + prevSpacing;
                     }
                 }
-            }else if(prevSpacing < currentSpacing){
+            }
+            else if(prevSpacing < currentSpacing){
                 for(int i=1;i<levels.size();i++){
                     levels.at(i).at(0) += (currentSpacing - prevSpacing) * (levelsFirstTreeId.at(i)-1);
                     //Last element of level already has right spacing if it was just modified so we exclude it

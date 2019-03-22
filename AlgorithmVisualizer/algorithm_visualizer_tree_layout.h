@@ -134,6 +134,18 @@ protected:
         setLayout(&mainLayout);
     }
 protected slots:
+    void wheelEvent(QWheelEvent *event) override{
+        if(event->delta() > 0){
+            nodeSize *= 1.2;
+            xGap *= 1.2;
+            yGap *= 1.2;
+        }else{
+            nodeSize /= 1.2;
+            xGap /= 1.2;
+            yGap /= 1.2;
+        }
+
+    }
     void setRandomData(){
         clear();
         int maxChildNum = childNumLineEdit.text().toInt();
@@ -142,19 +154,27 @@ protected slots:
         int maxOffset = maxWidthLineEdit.text().toInt()/2;
         root =  new TreeLayoutNode();
         nodes.push_back(root);
-        generateRandomTree(root,0,maxChildNum,maxLevel,nodeLimit,0,maxOffset);
+        std::vector<double> offsets;
+        generateRandomTree(root,0,maxChildNum,maxLevel,nodeLimit,offsets,maxOffset);
         treeLayout.setTree(root);
     }
-    void generateRandomTree(TreeLayoutNode *node, int currLevel,const int maxChildren,const int maxLevel, int &nodeLimit, int currOffset,const int maxOffset){
-        if(currLevel <= maxLevel && nodeLimit > 0 && abs(currOffset)< maxOffset){
+    void generateRandomTree(TreeLayoutNode *node, int currLevel,const int maxChildren,const int maxLevel, int &nodeLimit, std::vector<double> &offsetsPerLevel,const int maxOffset){
+        if(currLevel <= maxLevel && nodeLimit > 0){
             int numChildren = rand() % maxChildren;
-            nodeLimit -= numChildren;
-            for(int i=0;i<numChildren;i++){
-                auto child = new TreeLayoutNode();
-                node->children.push_back(child);
-                nodes.push_back(child);
-                int nextOffset = -numChildren/2 + i;
-                generateRandomTree(child, currLevel+1, maxChildren, maxLevel, nodeLimit,currOffset+nextOffset,maxOffset);
+
+            if(offsetsPerLevel.size()<= currLevel) offsetsPerLevel.resize(currLevel+1,0);
+            offsetsPerLevel.at(currLevel) += numChildren;
+
+            if(offsetsPerLevel.at(currLevel) < maxOffset){
+
+                nodeLimit -= numChildren;
+                for(int i=0;i<numChildren;i++){
+                    auto child = new TreeLayoutNode();
+                    node->children.push_back(child);
+                    nodes.push_back(child);
+                    int nextOffset = -numChildren/2 + i;
+                    generateRandomTree(child, currLevel+1, maxChildren, maxLevel, nodeLimit,offsetsPerLevel,maxOffset);
+                }
             }
         }
     }
@@ -162,21 +182,21 @@ protected:
     TreeLayout treeLayout;
     TreeLayoutNode *root;
     std::vector<TreeLayoutNode*> nodes;
-    int nodeSize = 16;
-    int xGap = 8;
-    int yGap = 8;
-    int margin = 50;
+    double nodeSize = 4;
+    double xGap = 2;
+    double yGap = 4;
+    double margin = 50;
     //UI
     UIPanel uiPanel;
     QPushButton randomButton{"Random"};
     QLabel childNumLabel{"max child num: "};
-    QLineEdit childNumLineEdit{"3"};
+    QLineEdit childNumLineEdit{"4"};
     QLabel levelNumLabel{"max level num: "};
-    QLineEdit levelNumLineEdit{"20"};
+    QLineEdit levelNumLineEdit{"25"};
     QLabel nodeLimitLabel{"Node limit: "};
     QLineEdit nodeLimitLineEdit{"300"};
     QLabel maxWidthLabel{"Max tree width: "};
-    QLineEdit maxWidthLineEdit{"60"};
+    QLineEdit maxWidthLineEdit{"10"};
     QIntValidator childNumInputValidator{1, 10};
     QIntValidator levelNumInputValidator{1, 50};
     QIntValidator nodeLimitInputValidator{1, 599};
