@@ -18,7 +18,7 @@ TEST(MergedTree, add)
  *
  * xCoords:  0   1   2   3
  */
-    TreeNode tr0;
+    TreeLayoutNode tr0;
     MergedTree mt0{&tr0};
     MergedTree mt1{&tr0};
     MergedTree mt2{&tr0};
@@ -362,5 +362,46 @@ TEST(MergedTree, add)
     EXPECT_FLOAT_EQ(mt42.levels.at(2).at(1), 15);
     EXPECT_FLOAT_EQ(mt42.levels.at(3).at(0), 3.5);
     EXPECT_FLOAT_EQ(mt42.levels.at(3).at(1), 4.5);
+/*
+ *
+ * lvl0                      mt50
+ *                             |
+ *          +------------+-----------+-----------+
+ *          |            |           |           |
+ * lvl1    mt51         mt38        mt38        mt0
+ *                       |           |           |
+ *                       |           |     _____________
+ *                       |           |     |     |     |
+ * lvl2                 mt39        mt39  mt1   mt2   mt3
+ *                       |           |
+ *                       |           |
+ *                       |           |
+ * lvl3                 mt40        mt40
+ *                       |           |
+ *                       |           |
+ *                       |           |
+ * lvl4                 mt41        mt41
+ *
+ * xCoords:  0     1     2     3     4     5     6     7     8     9     10
+ */
+    MergedTree mt50{&tr0};
+    MergedTree mt51{&tr0};
+
+    mt50.add(&mt51);
+    mt50.add(&mt38);
+    mt50.add(&mt38);
+    mt50.add(&mt0);
+
+    EXPECT_EQ(mt50.levels.size(),5);
+    EXPECT_FLOAT_EQ(mt50.levels.at(0).at(0), 3);
+    EXPECT_FLOAT_EQ(mt50.levels.at(0).at(1), 4);
+    EXPECT_FLOAT_EQ(mt50.levels.at(1).at(0), 0);
+    EXPECT_FLOAT_EQ(mt50.levels.at(1).at(1), 7);
+    EXPECT_FLOAT_EQ(mt50.levels.at(2).at(0), 2);
+    EXPECT_FLOAT_EQ(mt50.levels.at(2).at(1), 8);
+    EXPECT_FLOAT_EQ(mt50.levels.at(3).at(0), 2);
+    EXPECT_FLOAT_EQ(mt50.levels.at(3).at(1), 5);
+    EXPECT_FLOAT_EQ(mt50.levels.at(4).at(0), 2);
+    EXPECT_FLOAT_EQ(mt50.levels.at(4).at(1), 5);
 }
 #endif // MERGED_TREE_TEST_H

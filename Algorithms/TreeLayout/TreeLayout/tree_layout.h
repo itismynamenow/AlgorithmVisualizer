@@ -4,18 +4,19 @@
 #include <vector>
 #include <array>
 #include <algorithm>
+#include <memory>
 
 #define FRIEND_TEST(test_case_name, test_name)\
 friend class test_case_name##_##test_name##_Test
 
-struct TreeNode{
-    std::vector<TreeNode> children;
+struct TreeLayoutNode{
+    std::vector<TreeLayoutNode*> children;
     double width = 1;
 };
 
 class MergedTree{
 public:
-    MergedTree(TreeNode *node){
+    MergedTree(TreeLayoutNode *node){
         this->node = node;
         levels.push_back({0,node->width});
     }
@@ -58,6 +59,10 @@ public:
         centerZeroLevel();
         //Update this value at the end only to avoid confusions
         treesAdded++;
+    }
+    void add(std::shared_ptr<MergedTree> another, int levelOffset=1){
+        childMergedTrees.push_back(another);
+        add(another.get());
     }
 protected:
     void centerZeroLevel(){
@@ -104,7 +109,29 @@ protected:
     std::vector<int> levelsFirstTreeId;
     std::array<double,2> prevLevelOne;
     int treesAdded = 0;
-    TreeNode *node;
+    TreeLayoutNode *node;
+    std::vector<std::shared_ptr<MergedTree>> childMergedTrees;
+};
+
+class TreeLayout{
+    void setTree(TreeLayoutNode *root){
+        clear();
+        this->root = root;
+        mergedTree = buildMergedTree(root);
+    }
+    void clear(){
+        root = nullptr;
+    }
+protected:
+    std::shared_ptr<MergedTree> buildMergedTree(TreeLayoutNode *node) const{
+        auto currMergedTree = std::make_shared<MergedTree>(MergedTree(node));
+        for(auto &child: node->children){
+            currMergedTree->add(buildMergedTree(child));
+        }
+        return  currMergedTree;
+    }
+    TreeLayoutNode *root = nullptr;
+    std::shared_ptr<MergedTree> mergedTree;
 };
 
 #endif // TREE_LAYOUT_H
