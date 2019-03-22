@@ -5,6 +5,7 @@
 #include <array>
 #include <algorithm>
 #include <memory>
+#include <limits>
 
 #define FRIEND_TEST(test_case_name, test_name)\
 friend class test_case_name##_##test_name##_Test
@@ -73,14 +74,20 @@ protected:
     //The result will determine how much entire another tree will be shifted right
     double computeMinOffset(MergedTree *another, int levelOffset=1)
     {
-        double minAnotherOffset=0;
+        double minAnotherOffset = std::numeric_limits<double>::lowest();
         for(int i=levelOffset;i<levelOffset+another->levels.size();i++){
             auto &thisLevel = this->levels.at(i);
             auto &anotherLevel = another->levels.at(i-levelOffset);
+            if(thisLevel.at(1)==0){
+                break;
+            }
             double currAnotherOffset = thisLevel.at(1) - anotherLevel.at(0);
             if(currAnotherOffset > minAnotherOffset){
                 minAnotherOffset = currAnotherOffset;
             }
+        }
+        if(minAnotherOffset == std::numeric_limits<double>::lowest()){
+            minAnotherOffset = 0;
         }
         return  minAnotherOffset;
     }
