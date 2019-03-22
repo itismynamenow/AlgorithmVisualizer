@@ -5,10 +5,15 @@
 #include "../Algorithms/TreeLayout/TreeLayout/tree_layout.h"
 
 class AlgorithmVisualizerTreeLayout: public AlgorithmVisualizerBase{
+
+    Q_OBJECT
+
 public:
     AlgorithmVisualizerTreeLayout(){
         name = "Tree layout";
         setUpTestTree();
+        initUIPanel();
+        initLayout();
     }
     virtual ~AlgorithmVisualizerTreeLayout() override{
         for(auto node:nodes){
@@ -17,7 +22,11 @@ public:
     }
 public slots:
     virtual void reset() override{
-
+        for(auto node:nodes){
+            delete node;
+        }
+        root = nullptr;
+        nodes.clear();
     }
     virtual void clear() override{
         reset();
@@ -26,7 +35,7 @@ protected:
     virtual void paintEvent(QPaintEvent *event) override{
         QPainter painter(this);
         painter.setBrush(Qt::cyan);
-        drawNode(painter,root);
+        if(root) drawNode(painter,root);
     }
     void drawNode(QPainter &painter, TreeLayoutNode *node, bool hasParent=false){
         if(node->isSet){
@@ -108,14 +117,70 @@ protected:
         root = nodes.at(0);
         treeLayout.setTree(root);
     }
+    void initUIPanel(){
+        uiPanel.addLineOfWidgets({&randomButton});
+        uiPanel.addLineOfWidgets({&childNumLabel, &childNumLineEdit});
+        uiPanel.addLineOfWidgets({&levelNumLabel, &levelNumLineEdit});
+        uiPanel.addLineOfWidgets({&nodeLimitLabel, &nodeLimitLineEdit});
+        uiPanel.addLineOfWidgets({&maxWidthLabel, &maxWidthLineEdit});
+        connect(&randomButton, SIGNAL(clicked()), this, SLOT(setRandomData()));
+        childNumLineEdit.setValidator(&childNumInputValidator);
+        levelNumLineEdit.setValidator(&levelNumInputValidator);
+        nodeLimitLineEdit.setValidator(&nodeLimitInputValidator);
+        maxWidthLineEdit.setValidator(&maxWidthInputValidator);
+    }
+    void initLayout(){
+        mainLayout.addWidget(&uiPanel,0,0,1,1, Qt::AlignRight | Qt::AlignTop);
+        setLayout(&mainLayout);
+    }
+protected slots:
+    void setRandomData(){
+        clear();
+        int maxChildNum = childNumLineEdit.text().toInt();
+        int maxLevel = levelNumLineEdit.text().toInt();
+        int nodeLimit = nodeLimitLineEdit.text().toInt();
+        int maxOffset = maxWidthLineEdit.text().toInt()/2;
+        root =  new TreeLayoutNode();
+        nodes.push_back(root);
+        generateRandomTree(root,0,maxChildNum,maxLevel,nodeLimit,0,maxOffset);
+        treeLayout.setTree(root);
+    }
+    void generateRandomTree(TreeLayoutNode *node, int currLevel,const int maxChildren,const int maxLevel, int &nodeLimit, int currOffset,const int maxOffset){
+        if(currLevel <= maxLevel && nodeLimit > 0 && abs(currOffset)< maxOffset){
+            int numChildren = rand() % maxChildren;
+            nodeLimit -= numChildren;
+            for(int i=0;i<numChildren;i++){
+                auto child = new TreeLayoutNode();
+                node->children.push_back(child);
+                nodes.push_back(child);
+                int nextOffset = -numChildren/2 + i;
+                generateRandomTree(child, currLevel+1, maxChildren, maxLevel, nodeLimit,currOffset+nextOffset,maxOffset);
+            }
+        }
+    }
 protected:
     TreeLayout treeLayout;
     TreeLayoutNode *root;
     std::vector<TreeLayoutNode*> nodes;
-    int nodeSize = 50;
-    int xGap = 15;
-    int yGap = 15;
-    int margin = 200;
+    int nodeSize = 16;
+    int xGap = 8;
+    int yGap = 8;
+    int margin = 50;
+    //UI
+    UIPanel uiPanel;
+    QPushButton randomButton{"Random"};
+    QLabel childNumLabel{"max child num: "};
+    QLineEdit childNumLineEdit{"3"};
+    QLabel levelNumLabel{"max level num: "};
+    QLineEdit levelNumLineEdit{"20"};
+    QLabel nodeLimitLabel{"Node limit: "};
+    QLineEdit nodeLimitLineEdit{"300"};
+    QLabel maxWidthLabel{"Max tree width: "};
+    QLineEdit maxWidthLineEdit{"60"};
+    QIntValidator childNumInputValidator{1, 10};
+    QIntValidator levelNumInputValidator{1, 50};
+    QIntValidator nodeLimitInputValidator{1, 599};
+    QIntValidator maxWidthInputValidator{1, 199};
 };
 
 #endif // ALGORITHM_VISUALIZER_TREE_LAYOUT_H
