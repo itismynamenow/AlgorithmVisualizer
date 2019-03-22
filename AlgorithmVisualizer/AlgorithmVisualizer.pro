@@ -37,7 +37,8 @@ HEADERS += \
     algorithm_visualizer_quad_tree.h \
     algorithm_visualizer_sorting.h \
     algorithm_visualizer_voronoi.h \
-    algorithm_visualizer_kd_tree.h
+    algorithm_visualizer_kd_tree.h \
+    algorithm_visualizer_tree_layout.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

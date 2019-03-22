@@ -64,6 +64,36 @@ public:
         childMergedTrees.push_back(another);
         add(another.get());
     }
+    std::vector<std::vector<double>> getNodesCoords(const double rootOffset, bool applyRootOffset=true){
+        std::vector<std::vector<double>> result;
+
+        double xOffset = 0;
+        if(applyRootOffset) xOffset = rootOffset - levels.at(0).at(0);
+        //Add coords of root node
+        result.push_back({levels.at(0).at(0) + xOffset});
+        //Add coords of lower node based of child merged trees
+        if(levels.size() > 1){
+            auto levelOneWidth = levels.at(1).at(1) - levels.at(1).at(0) - 1;
+            double nodeSpacing = 0;
+            if(childMergedTrees.size()>1){
+                nodeSpacing = levelOneWidth/((double)(childMergedTrees.size()-1));
+            }
+            for(int i=0;i<childMergedTrees.size();i++){
+                auto child = childMergedTrees.at(i);
+                auto currChildXOffset = levels.at(1).at(0) + nodeSpacing * i + xOffset;
+                auto childNodeCoords = child->getNodesCoords(currChildXOffset);
+                //Resize result if needed
+                if(result.size() < childNodeCoords.size()+1){
+                    result.resize(childNodeCoords.size()+1);
+                }
+                //Merge result and curr child result
+                for(int i=1;i<childNodeCoords.size()+1;i++){
+                    result.at(i).insert(result.at(i).end(),childNodeCoords.at(i-1).begin(),childNodeCoords.at(i-1).end());
+                }
+            }
+        }
+        return result;
+    }
 protected:
     void centerZeroLevel(){
         if(levels.size()>1){
@@ -114,10 +144,56 @@ protected:
 };
 
 class TreeLayout{
+public:
+    TreeLayout(){
+        TreeLayoutNode tr0;
+
+        auto mt20  = std::make_shared<MergedTree>(&tr0);
+        auto mt21  = std::make_shared<MergedTree>(&tr0);
+        auto mt22  = std::make_shared<MergedTree>(&tr0);
+        auto mt23  = std::make_shared<MergedTree>(&tr0);
+        auto mt24  = std::make_shared<MergedTree>(&tr0);
+        auto mt25  = std::make_shared<MergedTree>(&tr0);
+        auto mt26  = std::make_shared<MergedTree>(&tr0);
+        auto mt27  = std::make_shared<MergedTree>(&tr0);
+        auto mt28  = std::make_shared<MergedTree>(&tr0);
+        auto mt29  = std::make_shared<MergedTree>(&tr0);
+        auto mt30  = std::make_shared<MergedTree>(&tr0);
+        auto mt31  = std::make_shared<MergedTree>(&tr0);
+        auto mt32  = std::make_shared<MergedTree>(&tr0);
+        auto mt33  = std::make_shared<MergedTree>(&tr0);
+
+        mt21->add(mt20);
+
+        mt24->add(mt21);
+        mt24->add(mt22);
+        mt24->add(mt23);
+
+        mt27->add(mt29);
+        mt27->add(mt30);
+        mt27->add(mt31);
+        mt27->add(mt32);
+        mt27->add(mt33);
+
+        mt26->add(mt27);
+        mt26->add(mt28);
+
+        mt25->add(mt24);
+        mt25->add(mt26);
+
+        rootMergedTree = mt25;
+    }
+    TreeLayout(TreeLayoutNode *root){
+        setTree(root);
+    }
     void setTree(TreeLayoutNode *root){
         clear();
         this->root = root;
-        mergedTree = buildMergedTree(root);
+        rootMergedTree = buildMergedTree(root);
+    }
+    //Return vector of xMin values for each node per level
+    std::vector<std::vector<double>> getNodesPositions(){
+        return rootMergedTree->getNodesCoords(0,false);
     }
     void clear(){
         root = nullptr;
@@ -131,7 +207,7 @@ protected:
         return  currMergedTree;
     }
     TreeLayoutNode *root = nullptr;
-    std::shared_ptr<MergedTree> mergedTree;
+    std::shared_ptr<MergedTree> rootMergedTree;
 };
 
 #endif // TREE_LAYOUT_H

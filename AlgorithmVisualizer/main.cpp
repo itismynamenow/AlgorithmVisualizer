@@ -3,10 +3,11 @@
 #include <QApplication>
 
 #include "main_window.h"
-#include "algorithm_visualizer_sorting.h"
-#include "algorithm_visualizer_quad_tree.h"
-#include "algorithm_visualizer_voronoi.h"
-#include "algorithm_visualizer_kd_tree.h"
+//#include "algorithm_visualizer_sorting.h"
+//#include "algorithm_visualizer_quad_tree.h"
+//#include "algorithm_visualizer_voronoi.h"
+//#include "algorithm_visualizer_kd_tree.h"
+#include "algorithm_visualizer_tree_layout.h"
 /*
  * What kind of algorithms can be visualized?
  *      - 2D stuff as KD-tree or Quad tree
@@ -52,17 +53,19 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    AlgorithmVisualizerKDTree algorithmVisualizerKDTree;
-    AlgorithmVisualizerVoronoi algorithmVisualizerVoronoi;
-    AlgorithmVisualizerQuadTree algorithmVisualizerQuadTree;
-    AlgorithmVisualizerSorting algorithmVisualizerSorting;
-    AlgorithmVisualizerDummy algorithmVisualizerDummy;
+    AlgorithmVisualizerTreeLayout algorithmVisualizerTreeLayout;
+//    AlgorithmVisualizerKDTree algorithmVisualizerKDTree;
+//    AlgorithmVisualizerVoronoi algorithmVisualizerVoronoi;
+//    AlgorithmVisualizerQuadTree algorithmVisualizerQuadTree;
+//    AlgorithmVisualizerSorting algorithmVisualizerSorting;
+//    AlgorithmVisualizerDummy algorithmVisualizerDummy;
 
-    MainWindow w{&algorithmVisualizerKDTree};
-    w.addAlgorithmVisualizer(&algorithmVisualizerVoronoi);
-    w.addAlgorithmVisualizer(&algorithmVisualizerSorting);
-    w.addAlgorithmVisualizer(&algorithmVisualizerQuadTree);
-    w.addAlgorithmVisualizer(&algorithmVisualizerDummy);
+    MainWindow w{&algorithmVisualizerTreeLayout};
+//    w.addAlgorithmVisualizer(&algorithmVisualizerKDTree);
+//    w.addAlgorithmVisualizer(&algorithmVisualizerVoronoi);
+//    w.addAlgorithmVisualizer(&algorithmVisualizerSorting);
+//    w.addAlgorithmVisualizer(&algorithmVisualizerQuadTree);
+//    w.addAlgorithmVisualizer(&algorithmVisualizerDummy);
     w.show();
 
     return a.exec();
