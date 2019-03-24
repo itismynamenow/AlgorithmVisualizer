@@ -56,7 +56,7 @@ protected:
     }
     void drawNode(QPainter &painter, TreeLayoutNode *node, bool hasParent=false){
         if(node->isSet){
-            int x = node->position * (nodeSize + xGap) + margin + viewTranslation.x();
+            int x = node->position * (nodeSize + xGap) + viewTranslation.x();
             int y = node->level * (nodeSize + yGap) + margin + viewTranslation.y();
             painter.drawRect(x, y, nodeSize, nodeSize);
             if(hasParent){
@@ -71,8 +71,8 @@ protected:
                     auto lastChild = node->children.at(node->children.size()-1);
                     bool childsAreSet = firstChild->isSet && lastChild->isSet;
                     if(childsAreSet){
-                        int xFirstChild = firstChild->position * (nodeSize + xGap) + margin + viewTranslation.x();
-                        int xLastChild = lastChild->position * (nodeSize + xGap) + margin + viewTranslation.x();
+                        int xFirstChild = firstChild->position * (nodeSize + xGap) + viewTranslation.x();
+                        int xLastChild = lastChild->position * (nodeSize + xGap) + viewTranslation.x();
                         painter.drawLine(xFirstChild + nodeSize/2,
                                          y + nodeSize + yGap/2,
                                          xLastChild + nodeSize/2,
@@ -107,12 +107,10 @@ protected slots:
             nodeSize *= 1.2;
             xGap *= 1.2;
             yGap *= 1.2;
-            margin *= 1.2;
         }else{
             nodeSize /= 1.2;
             xGap /= 1.2;
             yGap /= 1.2;
-            margin /= 1.2;
         }
 
     }
@@ -127,6 +125,10 @@ protected slots:
         std::vector<double> offsets;
         generateRandomTree(root,0,maxChildNum,maxLevel,nodeLimit,offsets,maxOffset);
         treeLayout.setTree(root);
+        if(root->isSet){
+            viewTranslation.setX(this->width()/2-root->position*(nodeSize+xGap));
+        }
+
     }
     void generateRandomTree(TreeLayoutNode *node, int currLevel,const int maxChildren,const int maxLevel, int &nodeLimit, std::vector<double> &offsetsPerLevel,const int maxOffset){
         if(currLevel <= maxLevel && nodeLimit > 0){
@@ -138,11 +140,14 @@ protected slots:
             if(offsetsPerLevel.at(currLevel) < maxOffset){
 
                 nodeLimit -= numChildren;
+                std::vector<int> randomIndices(numChildren,-1);
+                std::iota(randomIndices.begin(),randomIndices.end(),0);
+                std::random_shuffle (randomIndices.begin(), randomIndices.end());
+                node->children = std::vector<TreeLayoutNode*>(numChildren);
+                for(auto &child:node->children) child = new TreeLayoutNode();
+
                 for(int i=0;i<numChildren;i++){
-                    auto child = new TreeLayoutNode();
-                    node->children.push_back(child);
-                    nodes.push_back(child);
-                    int nextOffset = -numChildren/2 + i;
+                    auto child = node->children.at(randomIndices.at(i));
                     generateRandomTree(child, currLevel+1, maxChildren, maxLevel, nodeLimit,offsetsPerLevel,maxOffset);
                 }
             }
